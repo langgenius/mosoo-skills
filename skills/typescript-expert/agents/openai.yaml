@@ -1,0 +1,4 @@
+interface:
+  display_name: "TypeScript Expert"
+  short_description: "Groots type-safety and boundary-contract review"
+  default_prompt: "Use $typescript-expert to diagnose TypeScript, contract, and assert-style boundary issues in this change."

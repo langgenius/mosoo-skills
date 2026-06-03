@@ -1,0 +1,4 @@
+interface:
+  display_name: "TypeScript Style"
+  short_description: "Readable TypeScript guardrails"
+  default_prompt: "Use $typescript-style-guardrails to review and tighten TypeScript style in this change."

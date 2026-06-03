@@ -1,0 +1,4 @@
+interface:
+  display_name: "No useEffect"
+  short_description: "React effect replacement guardrails"
+  default_prompt: "Use $no-use-effect to refactor or review React code without adding direct useEffect calls."
