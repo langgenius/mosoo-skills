@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# scripts/sync-local.sh — refresh the 8 skills that the public `skills` CLI cannot manage.
+# scripts/sync-local.sh — refresh the 6 skills that the public `skills` CLI cannot manage.
 #
 # Usage:
 #   scripts/sync-local.sh                 # refresh all locally-maintained skills
@@ -17,8 +17,6 @@ SOURCES=(
   "better-auth-email-and-password|EpicenterHQ/epicenter|main|.agents/skills/email-and-password-best-practices"
   "building-ai-agent-on-cloudflare|cloudflare/skills|54ca4fd800e69906355da5010c03499017ddc3b1|skills/building-ai-agent-on-cloudflare"
   "building-mcp-server-on-cloudflare|cloudflare/skills|54ca4fd800e69906355da5010c03499017ddc3b1|skills/building-mcp-server-on-cloudflare"
-  "code-review-guardrails|langgenius/groots|main|.agents/skills/code-review-guardrails"
-  "typescript-style-guardrails|langgenius/groots|main|.agents/skills/typescript-style-guardrails"
 )
 
 repo_root="$(cd "$(dirname "$0")/.." && pwd)"
