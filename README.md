@@ -2,7 +2,7 @@
 
 Reusable skills for the Mosoo coding agents. Each skill lives under [`skills/`](./skills) as its own directory containing a `SKILL.md` (the entry point) and any supporting `references/`, scripts, or assets.
 
-Skill provenance and refresh commands are tracked in [`SOURCES.md`](./SOURCES.md). 12 of the 20 skills are managed by the [`skills`](https://github.com/vercel-labs/skills) CLI (run `npx skills check` / `npx skills update`); the other 8 are refreshed by `scripts/sync-local.sh`.
+Skill provenance and refresh commands are tracked in [`SOURCES.md`](./SOURCES.md). 12 of the 20 skills are managed by the [`skills`](https://github.com/vercel-labs/skills) CLI (run `npx skills check` / `npx skills update`); 6 are refreshed from public upstreams by `scripts/sync-local.sh`; the remaining 2 are mosoo originals — edit in place.
 
 ## Skills
 
@@ -38,7 +38,7 @@ mosoo-skills/
 ├── package.json          # consumed by the skills CLI
 ├── skills-lock.json      # CLI-tracked skill versions + content hashes
 ├── scripts/
-│   └── sync-local.sh     # refresh the 8 non-CLI-managed skills
+│   └── sync-local.sh     # refresh the 6 non-CLI-managed skills with public upstreams
 └── skills/
     └── <skill-name>/
         ├── SKILL.md          # entry point — frontmatter `name` + `description`, then body
@@ -52,12 +52,12 @@ mosoo-skills/
 npx skills check          # show drift from upstream
 npx skills update         # apply pending updates, rewrites skills/<name>/ + skills-lock.json
 
-# 8 locally-maintained skills (EpicenterHQ, removed-upstream snapshots, groots-internal)
+# 6 manually-synced skills with public upstreams (see SOURCES.md for refs)
 scripts/sync-local.sh                   # refresh all
 scripts/sync-local.sh <skill-name>      # refresh one
 ```
 
-Review the resulting `git diff` before committing — upstream changes are not auto-accepted.
+The 2 mosoo originals (`code-review-guardrails`, `typescript-style-guardrails`) have no remote upstream — edit their `SKILL.md` in place. Review the resulting `git diff` before committing — upstream changes from the CLI or sync script are not auto-accepted.
 
 ## Adding a new skill
 

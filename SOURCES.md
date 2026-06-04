@@ -1,6 +1,6 @@
 # Skill sources
 
-All 20 skills, grouped by upstream. The 12 entries in `skills-lock.json` are tracked by the [`skills`](https://github.com/vercel-labs/skills) CLI and refreshed via `npx skills update`. The remaining 8 are maintained locally; refresh them via the manual steps in [§ Locally maintained](#locally-maintained).
+All 20 skills, grouped by upstream. The 12 entries in `skills-lock.json` are tracked by the [`skills`](https://github.com/vercel-labs/skills) CLI and refreshed via `npx skills update`. 6 more sync from public upstreams the CLI can't enumerate via `scripts/sync-local.sh`. The remaining 2 are mosoo originals — this repo is their canonical home.
 
 ## CLI-tracked (12)
 
@@ -26,11 +26,11 @@ npx skills check    # diff every tracked skill against its upstream
 npx skills update   # apply pending updates (writes to skills/<name>/ and skills-lock.json)
 ```
 
-## Locally maintained (8)
+## Manually synced (6)
 
 ### From EpicenterHQ (4) — CLI cannot discover these
 
-`EpicenterHQ/epicenter` exposes ~95 skill directories under `.agents/skills/`, but the public skills CLI currently only enumerates ~76 of them. Until that gap closes, refresh these four by hand. The local directory names use the `better-auth-*` prefix groots adopted; the upstream `name:` field still matches the upstream directory.
+`EpicenterHQ/epicenter` exposes ~95 skill directories under `.agents/skills/`, but the public skills CLI currently only enumerates ~76 of them. Until that gap closes, refresh these four by hand. The local directory names use a `better-auth-*` prefix for grouping; the upstream `name:` field still matches the upstream directory.
 
 | Local skill | Upstream path | One-shot refresh |
 | --- | --- | --- |
@@ -48,15 +48,13 @@ npx skills update   # apply pending updates (writes to skills/<name>/ and skills
 | [`building-ai-agent-on-cloudflare`](./skills/building-ai-agent-on-cloudflare) | `cloudflare/skills@54ca4fd:skills/building-ai-agent-on-cloudflare/SKILL.md` | `scripts/sync-local.sh building-ai-agent-on-cloudflare` |
 | [`building-mcp-server-on-cloudflare`](./skills/building-mcp-server-on-cloudflare) | `cloudflare/skills@54ca4fd:skills/building-mcp-server-on-cloudflare/SKILL.md` | `scripts/sync-local.sh building-mcp-server-on-cloudflare` |
 
-### Groots-internal (2) — no public upstream
+## mosoo originals (2)
 
-Originally written inside `langgenius/groots`; no public copy exists elsewhere. Treat `langgenius/groots/.agents/skills/<name>/` as the upstream.
+No public upstream. This repo is the canonical home — edit `skills/<name>/SKILL.md` directly and commit.
 
-- [`code-review-guardrails`](./skills/code-review-guardrails) — `langgenius/groots@main:.agents/skills/code-review-guardrails`
-- [`typescript-style-guardrails`](./skills/typescript-style-guardrails) — `langgenius/groots@main:.agents/skills/typescript-style-guardrails`
-
-`scripts/sync-local.sh` knows about these too; pass the local name as the argument.
+- [`code-review-guardrails`](./skills/code-review-guardrails) — review skill that catches sub-optimal coding patterns and constraint violations
+- [`typescript-style-guardrails`](./skills/typescript-style-guardrails) — readability-first TypeScript/TSX style guardrails for strict codebases
 
 ## How `scripts/sync-local.sh` works
 
-The script reads the per-skill mapping below from this file and runs `git archive | tar -x` to refresh each skill directory in-place. It writes nothing else, so a `git diff` after running shows exactly what changed upstream. Review the diff, commit if you want to adopt it.
+The script holds a per-skill mapping (`<local-name>|<owner/repo>|<ref>|<upstream-path>`) and refreshes one or all entries by fetching that path from the pinned ref. Pass a skill name to refresh just one; pass nothing to refresh all 6. It writes nothing outside `skills/<name>/`, so a `git diff` after running shows exactly what changed upstream. Review the diff, commit if you want to adopt it.
