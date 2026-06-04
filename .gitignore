@@ -2,3 +2,7 @@
 node_modules/
 .env
 .env.local
+
+# Skills CLI mirror directories — agent-runtime copies of skills/, not source of truth
+.agents/
+.claude/

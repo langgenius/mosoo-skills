@@ -2,7 +2,7 @@
 
 Reusable skills for the Mosoo coding agents. Each skill lives under [`skills/`](./skills) as its own directory containing a `SKILL.md` (the entry point) and any supporting `references/`, scripts, or assets.
 
-Skills are sourced from [`langgenius/groots@2b5315b`](https://github.com/langgenius/groots/tree/2b5315bf8925bc946c06ba30874322a84db1f187/.agents/skills).
+Skill provenance and refresh commands are tracked in [`SOURCES.md`](./SOURCES.md). 12 of the 20 skills are managed by the [`skills`](https://github.com/vercel-labs/skills) CLI (run `npx skills check` / `npx skills update`); the other 8 are refreshed by `scripts/sync-local.sh`.
 
 ## Skills
 
@@ -18,7 +18,7 @@ Skills are sourced from [`langgenius/groots@2b5315b`](https://github.com/langgen
 | [cloudflare](./skills/cloudflare/SKILL.md) | Comprehensive Cloudflare platform skill: Workers, Pages, KV/D1/R2, Workers AI, Vectorize, Agents SDK, networking, security, IaC. |
 | [cloudflare-email-service](./skills/cloudflare-email-service/SKILL.md) | Send and receive transactional emails with Cloudflare Email Service (Email Sending + Email Routing). |
 | [code-review-guardrails](./skills/code-review-guardrails/SKILL.md) | Catch sub-optimal coding patterns, tech debt, and constraint violations before commit/merge. |
-| [codex-complexity-optimizer](./skills/codex-complexity-optimizer/SKILL.md) | Audit and improve code complexity, N+1 queries, repeated scans, and render-heavy React paths without changing behavior. |
+| [complexity-optimizer](./skills/complexity-optimizer/SKILL.md) | Audit and improve code complexity, N+1 queries, repeated scans, and render-heavy paths without changing behavior. |
 | [durable-objects](./skills/durable-objects/SKILL.md) | Create and review Cloudflare Durable Objects (stateful coordination, RPC, SQLite, alarms, WebSockets). |
 | [no-use-effect](./skills/no-use-effect/SKILL.md) | Enforce the no-`useEffect` rule when writing or reviewing React code. |
 | [playwright-cli](./skills/playwright-cli/SKILL.md) | Automate browser interactions, test web pages, and work with Playwright tests. |
@@ -34,11 +34,30 @@ Skills are sourced from [`langgenius/groots@2b5315b`](https://github.com/langgen
 ```
 mosoo-skills/
 ├── README.md
+├── SOURCES.md            # upstream provenance per skill
+├── package.json          # consumed by the skills CLI
+├── skills-lock.json      # CLI-tracked skill versions + content hashes
+├── scripts/
+│   └── sync-local.sh     # refresh the 8 non-CLI-managed skills
 └── skills/
     └── <skill-name>/
         ├── SKILL.md          # entry point — frontmatter `name` + `description`, then body
         └── references/       # optional supporting material
 ```
+
+## Updating skills
+
+```bash
+# 12 CLI-tracked skills
+npx skills check          # show drift from upstream
+npx skills update         # apply pending updates, rewrites skills/<name>/ + skills-lock.json
+
+# 8 locally-maintained skills (EpicenterHQ, removed-upstream snapshots, groots-internal)
+scripts/sync-local.sh                   # refresh all
+scripts/sync-local.sh <skill-name>      # refresh one
+```
+
+Review the resulting `git diff` before committing — upstream changes are not auto-accepted.
 
 ## Adding a new skill
 
@@ -50,4 +69,5 @@ mosoo-skills/
    ---
    ```
 2. Add an entry to the **Skills** table above — link the skill name to its `SKILL.md`.
-3. Keep skill names in `kebab-case` and match the directory name to the `name` frontmatter field.
+3. Record the upstream in [`SOURCES.md`](./SOURCES.md). If it ships in a repo the [`skills` CLI](https://github.com/vercel-labs/skills) can read, also run `npx skills add <owner/repo> --skill <skill-name> --copy -y` from the repo root so it lands in `skills-lock.json`.
+4. Keep skill names in `kebab-case` and match the directory name to the `name` frontmatter field where practical.

@@ -1,0 +1,11 @@
+{
+  "name": "@langgenius/mosoo-skills",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Reusable skills library for the Mosoo coding agents. Synced from public upstreams via the skills CLI.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/langgenius/mosoo-skills.git"
+  },
+  "license": "Apache-2.0"
+}
