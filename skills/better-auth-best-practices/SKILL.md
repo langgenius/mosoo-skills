@@ -1,34 +1,63 @@
 ---
 name: better-auth-best-practices
-description: Skill for integrating Better Auth - the comprehensive TypeScript authentication framework.
+description: 'Better Auth server/client setup: `auth.ts`, generated schema, DB adapters, sessions, cookies, env vars, and plugins. Use when mentioning Better Auth, betterauth, auth handlers, OAuth, email/password, or session configuration.'
+metadata:
+  author: epicenter
+  version: '1.0'
 ---
 
 # Better Auth Integration Guide
 
+## Reference Repositories
+
+- [Better Auth](https://github.com/better-auth/better-auth) — TypeScript authentication framework with plugins
+
+## Upstream Grounding
+
+When Better Auth API signatures, adapter behavior, generated schema, plugin options, session storage, cookie behavior, or security defaults affect correctness, ask DeepWiki a narrow question against `better-auth/better-auth` before relying on memory. Use it to orient, then verify decisive details against local installed types, source, or official docs before changing code.
+
+Skip DeepWiki for stable setup basics already documented below.
+
 **Always consult [better-auth.com/docs](https://better-auth.com/docs) for code examples and latest API.**
 
-Better Auth is a TypeScript-first, framework-agnostic auth framework supporting email/password, OAuth, magic links, passkeys, and more via plugins.
+## When to Apply This Skill
+
+Use this pattern when you need to:
+
+- Configure Better Auth server/client setup in TypeScript projects.
+- Wire environment variables, database adapters, and CLI migrations.
+- Set up sessions, cookie cache strategy, and security/rate-limit options.
+- Add and configure Better Auth plugins plus corresponding client plugins.
+- Troubleshoot common Better Auth model, schema, and storage pitfalls.
+
+---
+
+## Setup Workflow
+
+1. Install: `bun add better-auth`
+2. Set env vars: `BETTER_AUTH_SECRET` and `BETTER_AUTH_URL`
+3. Create `auth.ts` with database + config
+4. Create route handler for your framework
+5. Run `bun x @better-auth/cli@latest migrate`
+6. Verify: call `GET /api/auth/ok` — should return `{ status: "ok" }`
 
 ---
 
 ## Quick Reference
 
 ### Environment Variables
-
 - `BETTER_AUTH_SECRET` - Encryption secret (min 32 chars). Generate: `openssl rand -base64 32`
 - `BETTER_AUTH_URL` - Base URL (e.g., `https://example.com`)
 
 Only define `baseURL`/`secret` in config if env vars are NOT set.
 
 ### File Location
-
 CLI looks for `auth.ts` in: `./`, `./lib`, `./utils`, or under `./src`. Use `--config` for custom path.
 
 ### CLI Commands
-
-- `npx @better-auth/cli@latest migrate` - Apply schema (built-in adapter)
-- `npx @better-auth/cli@latest generate` - Generate schema for Prisma/Drizzle
-- `npx @better-auth/cli mcp --cursor` - Add MCP to AI tools
+- `bun x @better-auth/cli@latest migrate` - Apply schema (built-in adapter)
+- `bun x @better-auth/cli@latest generate` - Generate schema for Prisma/Drizzle
+- `bun x @better-auth/cli@latest mcp --cursor` - Add MCP to AI tools
 
 **Re-run after adding/changing plugins.**
 
@@ -36,18 +65,18 @@ CLI looks for `auth.ts` in: `./`, `./lib`, `./utils`, or under `./src`. Use `--c
 
 ## Core Config Options
 
-| Option             | Notes                                          |
-| ------------------ | ---------------------------------------------- |
-| `appName`          | Optional display name                          |
-| `baseURL`          | Only if `BETTER_AUTH_URL` not set              |
-| `basePath`         | Default `/api/auth`. Set `/` for root.         |
-| `secret`           | Only if `BETTER_AUTH_SECRET` not set           |
-| `database`         | Required for most features. See adapters docs. |
-| `secondaryStorage` | Redis/KV for sessions & rate limits            |
-| `emailAndPassword` | `{ enabled: true }` to activate                |
-| `socialProviders`  | `{ google: { clientId, clientSecret }, ... }`  |
-| `plugins`          | Array of plugins                               |
-| `trustedOrigins`   | CSRF whitelist                                 |
+| Option | Notes |
+|--------|-------|
+| `appName` | Optional display name |
+| `baseURL` | Only if `BETTER_AUTH_URL` not set |
+| `basePath` | Default `/api/auth`. Set `/` for root. |
+| `secret` | Only if `BETTER_AUTH_SECRET` not set |
+| `database` | Required for most features. See adapters docs. |
+| `secondaryStorage` | Redis/KV for sessions & rate limits |
+| `emailAndPassword` | `{ enabled: true }` to activate |
+| `socialProviders` | `{ google: { clientId, clientSecret }, ... }` |
+| `plugins` | Array of plugins |
+| `trustedOrigins` | CSRF whitelist |
 
 ---
 
@@ -64,13 +93,11 @@ CLI looks for `auth.ts` in: `./`, `./lib`, `./utils`, or under `./src`. Use `--c
 ## Session Management
 
 **Storage priority:**
-
 1. If `secondaryStorage` defined → sessions go there (not DB)
 2. Set `session.storeSessionInDatabase: true` to also persist to DB
 3. No database + `cookieCache` → fully stateless mode
 
 **Cookie cache strategies:**
-
 - `compact` (default) - Base64url + HMAC. Smallest.
 - `jwt` - Standard JWT. Readable but signed.
 - `jwe` - Encrypted. Maximum security.
@@ -100,15 +127,25 @@ CLI looks for `auth.ts` in: `./`, `./lib`, `./utils`, or under `./src`. Use `--c
 ## Security
 
 **In `advanced`:**
-
 - `useSecureCookies` - Force HTTPS cookies
 - `disableCSRFCheck` - ⚠️ Security risk
-- `disableOriginCheck` - ⚠️ Security risk
+- `disableOriginCheck` - ⚠️ Security risk  
 - `crossSubDomainCookies.enabled` - Share cookies across subdomains
 - `ipAddress.ipAddressHeaders` - Custom IP headers for proxies
 - `database.generateId` - Custom ID generation or `"serial"`/`"uuid"`/`false`
 
 **Rate limiting:** `rateLimit.enabled`, `rateLimit.window`, `rateLimit.max`, `rateLimit.storage` ("memory" | "database" | "secondary-storage").
+
+## Hono, Cookies, And OAuth Provider Boundaries
+
+- Mount Better Auth handlers for both `GET` and `POST` auth paths.
+- Register credentialed CORS before Better Auth when browser callers use cookies. Coordinate `credentials: true`, `trustedOrigins`, secure cookies, and origin checks.
+- Treat `baseURL` as security-sensitive: it drives redirects, issuer URLs, cookie behavior, and OAuth validation. Dynamic base URLs need explicit host or origin validation.
+- Treat `trustedOrigins` as a CSRF and redirect boundary, not a convenience list.
+- Do not disable CSRF or origin checks in production. `disableOriginCheck` also weakens CSRF protection.
+- Make secure cookie behavior explicit in production, even if Better Auth can infer it from HTTPS.
+- If `secondaryStorage` is configured, sessions may not persist to the database unless `session.storeSessionInDatabase` is set. Put OAuth verification records in durable storage when KV consistency or cross-isolate reads matter.
+- For OAuth provider work, document PKCE, trusted clients, JWT or JWKS signing choices, audience and issuer validation, discovery endpoints, and resource-server token verification.
 
 ---
 
@@ -125,11 +162,9 @@ CLI looks for `auth.ts` in: `./`, `./lib`, `./utils`, or under `./src`. Use `--c
 ## Plugins
 
 **Import from dedicated paths for tree-shaking:**
-
 ```
 import { twoFactor } from "better-auth/plugins/two-factor"
 ```
-
 NOT `from "better-auth/plugins"`.
 
 **Popular plugins:** `twoFactor`, `organization`, `passkey`, `magicLink`, `emailOtp`, `username`, `phoneNumber`, `admin`, `apiKey`, `bearer`, `jwt`, `multiSession`, `sso`, `oauthProvider`, `oidcProvider`, `openAPI`, `genericOAuth`.

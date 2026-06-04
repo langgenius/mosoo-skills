@@ -98,22 +98,18 @@ export class ToolAgent extends Agent<Env, State> {
             ],
           });
 
-          connection.send(
-            JSON.stringify({
-              type: "response",
-              content: finalResponse.response,
-              toolUsed: toolCall.function.name,
-            }),
-          );
+          connection.send(JSON.stringify({
+            type: "response",
+            content: finalResponse.response,
+            toolUsed: toolCall.function.name,
+          }));
         }
       }
     } else {
-      connection.send(
-        JSON.stringify({
-          type: "response",
-          content: response.response,
-        }),
-      );
+      connection.send(JSON.stringify({
+        type: "response",
+        content: response.response,
+      }));
     }
   }
 }
@@ -146,7 +142,9 @@ export class RAGAgent extends Agent<Env, State> {
       });
 
       // 3. Build context from results
-      const context = results.matches.map((m) => m.metadata?.text || "").join("\n\n");
+      const context = results.matches
+        .map((m) => m.metadata?.text || "")
+        .join("\n\n");
 
       // 4. Generate response with context
       const response = await this.env.AI.run("@cf/meta/llama-3-8b-instruct", {
@@ -168,13 +166,11 @@ export class RAGAgent extends Agent<Env, State> {
         ],
       });
 
-      connection.send(
-        JSON.stringify({
-          type: "response",
-          content: response.response,
-          sources: results.matches.map((m) => m.metadata?.source),
-        }),
-      );
+      connection.send(JSON.stringify({
+        type: "response",
+        content: response.response,
+        sources: results.matches.map((m) => m.metadata?.source),
+      }));
     }
   }
 
@@ -184,13 +180,11 @@ export class RAGAgent extends Agent<Env, State> {
       text: doc.text,
     });
 
-    await this.env.VECTORIZE.upsert([
-      {
-        id: doc.id,
-        values: embedding.data[0],
-        metadata: { text: doc.text, source: doc.source },
-      },
-    ]);
+    await this.env.VECTORIZE.upsert([{
+      id: doc.id,
+      values: embedding.data[0],
+      metadata: { text: doc.text, source: doc.source },
+    }]);
   }
 }
 ```
@@ -243,12 +237,10 @@ export class OrchestratorAgent extends Agent<Env, State> {
         draft: draftResult,
       });
 
-      connection.send(
-        JSON.stringify({
-          type: "complete",
-          article: finalResult,
-        }),
-      );
+      connection.send(JSON.stringify({
+        type: "complete",
+        article: finalResult,
+      }));
     }
   }
 }
@@ -269,7 +261,11 @@ export class ResearcherAgent extends Agent<Env, {}> {
 }
 
 export class WriterAgent extends Agent<Env, {}> {
-  async processTask(payload: { action: string; research: string; topic: string }): Promise<string> {
+  async processTask(payload: {
+    action: string;
+    research: string;
+    topic: string;
+  }): Promise<string> {
     // Generate a draft article from the research
     return `Draft article on ${payload.topic} based on research`;
   }
@@ -320,14 +316,12 @@ export class ApprovalAgent extends Agent<Env, State> {
           ],
         });
 
-        connection.send(
-          JSON.stringify({
-            type: "approval_required",
-            approvalId,
-            action: data.action,
-            description: this.describeAction(data.action, data.payload),
-          }),
-        );
+        connection.send(JSON.stringify({
+          type: "approval_required",
+          approvalId,
+          action: data.action,
+          description: this.describeAction(data.action, data.payload),
+        }));
 
         return;
       }
@@ -337,12 +331,16 @@ export class ApprovalAgent extends Agent<Env, State> {
     }
 
     if (data.type === "approve") {
-      const approval = this.state.pendingApprovals.find((a) => a.id === data.approvalId);
+      const approval = this.state.pendingApprovals.find(
+        (a) => a.id === data.approvalId
+      );
 
       if (approval) {
         // Remove from pending
         this.setState({
-          pendingApprovals: this.state.pendingApprovals.filter((a) => a.id !== data.approvalId),
+          pendingApprovals: this.state.pendingApprovals.filter(
+            (a) => a.id !== data.approvalId
+          ),
         });
 
         // Execute the approved action
@@ -352,15 +350,15 @@ export class ApprovalAgent extends Agent<Env, State> {
 
     if (data.type === "reject") {
       this.setState({
-        pendingApprovals: this.state.pendingApprovals.filter((a) => a.id !== data.approvalId),
+        pendingApprovals: this.state.pendingApprovals.filter(
+          (a) => a.id !== data.approvalId
+        ),
       });
 
-      connection.send(
-        JSON.stringify({
-          type: "action_rejected",
-          approvalId: data.approvalId,
-        }),
-      );
+      connection.send(JSON.stringify({
+        type: "action_rejected",
+        approvalId: data.approvalId,
+      }));
     }
   }
 
@@ -378,13 +376,11 @@ export class ApprovalAgent extends Agent<Env, State> {
     // Execute the action
     const result = await this.performAction(action, data);
 
-    connection.send(
-      JSON.stringify({
-        type: "action_completed",
-        action,
-        result,
-      }),
-    );
+    connection.send(JSON.stringify({
+      type: "action_completed",
+      action,
+      result,
+    }));
   }
 }
 ```
@@ -415,13 +411,11 @@ export class StreamingAgent extends Agent<Env, State> {
       for await (const chunk of stream) {
         if (chunk.response) {
           fullResponse += chunk.response;
-          connection.send(
-            JSON.stringify({
-              type: "stream",
-              content: chunk.response,
-              done: false,
-            }),
-          );
+          connection.send(JSON.stringify({
+            type: "stream",
+            content: chunk.response,
+            done: false,
+          }));
         }
       }
 
@@ -435,13 +429,11 @@ export class StreamingAgent extends Agent<Env, State> {
       });
 
       // Signal completion
-      connection.send(
-        JSON.stringify({
-          type: "stream",
-          content: "",
-          done: true,
-        }),
-      );
+      connection.send(JSON.stringify({
+        type: "stream",
+        content: "",
+        done: true,
+      }));
     }
   }
 }
@@ -455,11 +447,16 @@ Agents can connect to MCP servers as clients:
 export class MCPClientAgent extends Agent<Env, State> {
   async onStart() {
     // Connect to external MCP server
-    await this.addMcpServer("github", "https://github-mcp.example.com/sse", {
-      headers: { Authorization: `Bearer ${this.env.GITHUB_TOKEN}` },
-    });
+    await this.addMcpServer(
+      "github",
+      "https://github-mcp.example.com/sse",
+      { headers: { Authorization: `Bearer ${this.env.GITHUB_TOKEN}` } }
+    );
 
-    await this.addMcpServer("database", "https://db-mcp.example.com/sse");
+    await this.addMcpServer(
+      "database",
+      "https://db-mcp.example.com/sse"
+    );
   }
 
   async onMessage(connection: Connection, message: string) {
