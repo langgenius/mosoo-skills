@@ -76,7 +76,8 @@ export default {
 
 **Dockerfile**:
 ```dockerfile
-FROM docker.io/cloudflare/sandbox:0.7.0
+# Match this tag to the installed @cloudflare/sandbox package version.
+FROM docker.io/cloudflare/sandbox:<version>
 RUN npm install -g ws
 EXPOSE 8080
 ```

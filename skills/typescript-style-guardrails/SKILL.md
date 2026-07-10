@@ -24,7 +24,7 @@ If the repository already documents a stronger local convention, follow the repo
 
 - Extract `Pick`, `Omit`, intersections, mapped types, and long unions into a named `type` or `interface` before using them in parameters, returns, props, or exports.
 - Do not leave dense expressions like `Pick<Foo, "a" | "b" | "c"> & Bar` inline in a function signature unless the expression is trivially short.
-- Name the type for the business meaning, not the mechanism. Prefer `EnvironmentSessionRow` over `PickedEnvironmentFields`.
+- Name the type for the business meaning, not the mechanism. Prefer `VisibleSession` over `PickedSessionFields`.
 
 ### Use `interface` for object contracts and `type` for composition
 
@@ -77,21 +77,9 @@ Stop using them when:
 Preferred rewrite:
 
 ```ts
-type EnvironmentSessionRow = Pick<
-  PipelineUserEnvironmentRow,
-  | "pipelineId"
-  | "userId"
-  | "type"
-  | "environmentId"
-  | "deviceCode"
-  | "metadata"
-  | "hostConnectionId"
-  | "hostAuthMode"
-  | "hostAuthTokenId"
-  | "hostAuthSessionId"
->;
+type VisibleSession = Pick<Session, "id" | "status" | "updatedAt">;
 
-function mapEnvironment(row: EnvironmentSessionRow) {
+function renderSession(session: VisibleSession) {
   // ...
 }
 ```

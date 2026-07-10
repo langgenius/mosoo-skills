@@ -39,12 +39,25 @@ Look for parallel truth sources or manual edits to generated output.
   parallel handwritten request layer.
 - `apps/api/src/adapters/graphql/schema.generated.graphql` and
   `apps/web/src/gql/**` are generated.
-- D1 schema source lives in `pkgs/db/src/schema/**`; `pkgs/db/drizzle/**` is the
-  generated baseline or migration output.
+- D1 schema source lives in `pkgs/db/src/schema/**`.
+- `pkgs/db/drizzle/0000_baseline.sql` is frozen once applied. Later SQL files,
+  journal entries, and snapshots form one append-only migration chain.
 - Cross-boundary payloads belong in an existing `pkgs/contracts` surface only
   when they truly cross application or package boundaries.
 
-Fix the source and regenerate. Do not patch generated files to hide drift.
+For GraphQL, fix the source and regenerate. For D1 schema changes, update the
+schema and append one named migration with `just db-generate <name>`, then
+review its SQL. Never modify, delete, rename, or regenerate an existing
+migration or snapshot to hide drift.
+
+### D1 migration safety
+
+- A normal release never resets, wipes, drops, recreates, or replaces
+  production D1. It applies only pending remote migrations.
+- Use `just db-reset-local` only for local Wrangler D1 state. It must not delete
+  `pkgs/db/drizzle` or rewrite migration history.
+- Destructive or data-rewrite SQL requires explicit approval plus a backup and
+  rollback plan before implementation or execution.
 
 ## 3. Type And Boundary Safety
 
@@ -158,8 +171,10 @@ New I/O and failure paths need evidence that operators can understand them.
   - TypeScript: `just tc-package <package>`
   - tests: `just test-package <package>` or `just test-file <path>`
   - GraphQL changes: `just graphql-codegen`
-  - D1 schema changes: `just db-regen`, then `just db-migrate` when applying the
-    local baseline
+  - D1 schema changes: `just db-generate <name>`, review the SQL, run relevant
+    API tests and `just db-migrations-check`; use `just db-reset-local` to prove
+    the full chain against fresh local state and `just db-migrate` only to apply
+    pending local migrations
   - broad or cross-boundary changes: `just check`
 
 Do not claim performance, availability, or runtime health without measurements,

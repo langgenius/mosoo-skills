@@ -2,7 +2,7 @@
 
 Reusable skills for the Mosoo coding agents. Each skill lives under [`skills/`](./skills) as its own directory containing a `SKILL.md` (the entry point) and any supporting `references/`, scripts, or assets.
 
-Skill provenance and refresh commands are tracked in [`SOURCES.md`](./SOURCES.md). 10 of the 20 skills are managed by the [`skills`](https://github.com/vercel-labs/skills) CLI; 6 are refreshed from public upstreams by `scripts/sync-local.sh`; the remaining 4 are Mosoo-maintained originals or adaptations — edit them in place.
+Skill provenance and refresh commands are tracked in [`SOURCES.md`](./SOURCES.md). 9 of the 20 skills are managed by the [`skills`](https://github.com/vercel-labs/skills) CLI; 6 are refreshed from public upstreams by `scripts/sync-local.sh`; the remaining 5 are Mosoo-maintained originals or adaptations — edit them in place.
 
 ## Skills
 
@@ -50,7 +50,7 @@ mosoo-skills/
 Run the relative commands below from the `mosoo-skills` repository root. If invoking the sync script from another directory, call it by its absolute path and use `git -C /absolute/path/to/mosoo-skills diff -- skills/<name>/` to review the result.
 
 ```bash
-# 10 CLI-tracked skills
+# 9 CLI-tracked skills
 npx skills update         # apply pending updates, rewrites skills/<name>/ + skills-lock.json
 
 # 6 manually-synced skills with public upstreams (see SOURCES.md for refs)
@@ -58,7 +58,7 @@ scripts/sync-local.sh                   # refresh all
 scripts/sync-local.sh <skill-name>      # refresh one
 ```
 
-The 4 Mosoo-maintained skills are the `code-review-guardrails` and `typescript-style-guardrails` originals plus the `no-use-effect` and `sandbox-sdk` adaptations. They are intentionally absent from `skills-lock.json` so `npx skills update` cannot overwrite Mosoo-specific guidance. Review `git diff -- skills/<name>/` before committing any refresh or local edit.
+The 5 Mosoo-maintained skills are the `code-review-guardrails` and `typescript-style-guardrails` originals plus the `cloudflare`, `no-use-effect`, and `sandbox-sdk` adaptations. They are intentionally absent from `skills-lock.json` so `npx skills update` cannot overwrite Mosoo-specific guidance. Review `git diff -- skills/<name>/` before committing any refresh or local edit.
 
 ## Adding a new skill
 
