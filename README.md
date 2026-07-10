@@ -2,7 +2,7 @@
 
 Reusable skills for the Mosoo coding agents. Each skill lives under [`skills/`](./skills) as its own directory containing a `SKILL.md` (the entry point) and any supporting `references/`, scripts, or assets.
 
-Skill provenance and refresh commands are tracked in [`SOURCES.md`](./SOURCES.md). 12 of the 20 skills are managed by the [`skills`](https://github.com/vercel-labs/skills) CLI (run `npx skills check` / `npx skills update`); 6 are refreshed from public upstreams by `scripts/sync-local.sh`; the remaining 2 are mosoo originals — edit in place.
+Skill provenance and refresh commands are tracked in [`SOURCES.md`](./SOURCES.md). 10 of the 20 skills are managed by the [`skills`](https://github.com/vercel-labs/skills) CLI; 6 are refreshed from public upstreams by `scripts/sync-local.sh`; the remaining 4 are Mosoo-maintained originals or adaptations — edit them in place.
 
 ## Skills
 
@@ -20,7 +20,7 @@ Skill provenance and refresh commands are tracked in [`SOURCES.md`](./SOURCES.md
 | [code-review-guardrails](./skills/code-review-guardrails/SKILL.md) | Catch sub-optimal coding patterns, tech debt, and constraint violations before commit/merge. |
 | [complexity-optimizer](./skills/complexity-optimizer/SKILL.md) | Audit and improve code complexity, N+1 queries, repeated scans, and render-heavy paths without changing behavior. |
 | [durable-objects](./skills/durable-objects/SKILL.md) | Create and review Cloudflare Durable Objects (stateful coordination, RPC, SQLite, alarms, WebSockets). |
-| [no-use-effect](./skills/no-use-effect/SKILL.md) | Enforce the no-`useEffect` rule when writing or reviewing React code. |
+| [no-use-effect](./skills/no-use-effect/SKILL.md) | Avoid unnecessary React effects while using `useEffect` for real external synchronization. |
 | [playwright-cli](./skills/playwright-cli/SKILL.md) | Automate browser interactions, test web pages, and work with Playwright tests. |
 | [sandbox-sdk](./skills/sandbox-sdk/SKILL.md) | Build sandboxed applications for secure code execution (code interpreters, CI/CD, dev environments). |
 | [typescript-expert](./skills/typescript-expert/SKILL.md) | TypeScript expert: strict type safety, boundary contracts, parser/admission design, monorepo diagnostics. |
@@ -47,9 +47,10 @@ mosoo-skills/
 
 ## Updating skills
 
+Run the relative commands below from the `mosoo-skills` repository root. If invoking the sync script from another directory, call it by its absolute path and use `git -C /absolute/path/to/mosoo-skills diff -- skills/<name>/` to review the result.
+
 ```bash
-# 12 CLI-tracked skills
-npx skills check          # show drift from upstream
+# 10 CLI-tracked skills
 npx skills update         # apply pending updates, rewrites skills/<name>/ + skills-lock.json
 
 # 6 manually-synced skills with public upstreams (see SOURCES.md for refs)
@@ -57,7 +58,7 @@ scripts/sync-local.sh                   # refresh all
 scripts/sync-local.sh <skill-name>      # refresh one
 ```
 
-The 2 mosoo originals (`code-review-guardrails`, `typescript-style-guardrails`) have no remote upstream — edit their `SKILL.md` in place. Review the resulting `git diff` before committing — upstream changes from the CLI or sync script are not auto-accepted.
+The 4 Mosoo-maintained skills are the `code-review-guardrails` and `typescript-style-guardrails` originals plus the `no-use-effect` and `sandbox-sdk` adaptations. They are intentionally absent from `skills-lock.json` so `npx skills update` cannot overwrite Mosoo-specific guidance. Review `git diff -- skills/<name>/` before committing any refresh or local edit.
 
 ## Adding a new skill
 

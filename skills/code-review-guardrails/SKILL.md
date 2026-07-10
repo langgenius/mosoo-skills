@@ -1,181 +1,188 @@
 ---
 name: code-review-guardrails
-description: Review skill that catches sub-optimal coding patterns, tech debt, and constraint violations. Use before committing changes, after completing a feature, or when reviewing another agent's work. Identifies hand-rolled code that duplicates library features, unsafe type casts, silent error handling, parallel truth sources, and violations of project ADRs.
+description: Review Mosoo changes for project-rule, architecture, type-safety, data-scope, generated-source, observability, dependency, and verification violations. Use before committing, after completing a feature, or when reviewing another agent's diff, especially for API, GraphQL, D1, runtime, auth, UI, or infrastructure changes.
 ---
 
 # Code Review Guardrails
 
-## Purpose
+Review the actual diff against the active checkout's rules. Read `AGENTS.md`,
+`CONTRIBUTING.md`, the relevant PRD, and `docs/architecture.md` before treating
+any checklist item as a repository requirement. Current project documents and
+code are authoritative when this skill and the repository disagree.
 
-Catch the patterns that compile and pass lint but accumulate tech debt. This skill is derived from real mistakes found in this codebase — every check maps to an actual incident.
+For every finding, report the file and line, the evidence, the user or runtime
+impact, and a concrete fix. Do not report a generic best practice as a blocker.
 
-## When to Use
+## 1. Existing Platform Capabilities
 
-- Before committing: run this review on your staged changes
-- After completing a feature: review the full diff against main
-- When reviewing another agent's work
-- When touching data-plane, schema, or infrastructure code
+Check whether a change reimplements a capability already provided by the
+current stack:
 
-## Review Checklist
+- Cloudflare D1 and Drizzle for database access and schema management
+- Hono for HTTP routing and middleware
+- GraphQL Yoga and the repository GraphQL module specs for GraphQL behavior
+- Cloudflare bindings and primitives for Durable Objects, Containers, R2,
+  Queues, email, and scheduled work
+- existing Mosoo services, contracts, parsers, and generated clients
 
-Work through each section. For every finding, state: the file, the line, what's wrong, and the fix.
+Custom code is acceptable when the existing surface does not meet the need.
+Require evidence for the gap and keep the custom boundary small.
 
-### 1. Library Features vs Hand-Rolled Code
+## 2. Canonical And Generated Sources
 
-**Check**: For every custom utility, parser, or generator — does the library already provide this?
+Look for parallel truth sources or manual edits to generated output.
 
-Red flags:
+- GraphQL fields and types originate in
+  `apps/api/src/adapters/graphql/graphql-module-specs.ts`; runtime resolvers live
+  in module GraphQL adapters.
+- Web GraphQL operations use the generated typed client. Do not introduce a
+  parallel handwritten request layer.
+- `apps/api/src/adapters/graphql/schema.generated.graphql` and
+  `apps/web/src/gql/**` are generated.
+- D1 schema source lives in `pkgs/db/src/schema/**`; `pkgs/db/drizzle/**` is the
+  generated baseline or migration output.
+- Cross-boundary payloads belong in an existing `pkgs/contracts` surface only
+  when they truly cross application or package boundaries.
 
-- Custom SQL string generators when the ORM has native support (e.g. Drizzle `pgPolicy`, `pgRole`, `enableRLS()`)
-- Custom migration file parsers when `migrate()` exists
-- Custom config loaders when the framework has built-in env support
-- Custom HTTP/WebSocket wrappers when Fastify/Mercurius handle it
-- Reimplemented retry logic, connection pooling, or health checks
+Fix the source and regenerate. Do not patch generated files to hide drift.
 
-**Action**: Read the library's docs for the specific feature before writing custom code. If the library provides it, use it. If not, document why the custom code is necessary.
+## 3. Type And Boundary Safety
 
-### 2. Parallel Truth Sources
+Search for `any`, `as unknown as`, unsafe generic assertions, unchecked
+deserialization, and exported complex inline types.
 
-**Check**: Is the same fact defined in two places that can drift?
+- Parse untrusted input at the boundary with the repository's existing parser
+  or schema approach.
+- Narrow nullable and union values instead of asserting them away.
+- Keep runtime-specific APIs inside their platform boundary.
+- Keep shared packages runtime-neutral and use their public exports.
 
-Red flags:
+Allow a type assertion only when the runtime invariant is demonstrated and the
+assertion is narrower than the alternatives.
 
-- A list of table names maintained separately from the schema definitions
-- Event type strings duplicated between contracts and handlers
-- Configuration defaults in both code and documentation
-- Validation rules in both frontend and backend without a shared schema
-- RLS/security policies maintained outside the schema that defines the tables
+## 4. Errors And Invariants
 
-**Action**: Consolidate to one canonical source. Other consumers should derive from it, not duplicate it.
+Flag broad catch-and-ignore behavior, empty catches, silent fallback values,
+and placeholder defaults that turn configuration or infrastructure failure into
+valid-looking data.
 
-### 3. Unsafe Type Assertions
+- Required business values and secrets fail fast.
+- Infrastructure errors retain useful context in structured logs.
+- Empty results remain distinguishable from failed reads.
+- Recovery behavior is explicit and tested when it changes user-visible state.
 
-**Check**: Search for `as unknown as`, `as any`, and `as T` where T is a generic parameter.
+## 5. Verification Quality
 
-Red flags:
+Match verification to risk instead of requiring one test shape everywhere.
 
-- `tx as unknown as DbClient` — double cast hiding a type mismatch
-- `JSON.parse(data) as T` — unsafe deserialization without validation
-- `result as SomeType[]` — casting query results without checking shape
-- Type assertions to bypass strict null checks instead of proper narrowing
+- Pure logic: focused unit tests.
+- Package or adapter behavior: `just test-package <package>` or
+  `just test-file <path>`.
+- API behavior: focused API integration tests.
+- User-visible or cross-runtime behavior: the relevant E2E or manual flow.
 
-**Action**: Fix the type system to not need the cast. If a cast is truly necessary, add a runtime validation (Zod parse, `instanceof` check, or type guard function) at the boundary.
+Flag assertions that only prove a symbol exists, skipped coverage without a
+tracked reason, and tests that exercise a mock instead of the changed behavior.
 
-### 4. Silent Error Handling
+## 6. Dependencies
 
-**Check**: Does the code silently swallow errors, return fallback values, or catch-and-ignore?
+For each new dependency, ask whether an existing workspace package or a small
+local implementation already covers the need.
 
-Red flags:
+- Declare dependencies in the package that imports them.
+- Commit intentional `bun.lock` changes and exclude install-only churn.
+- Avoid circular workspace dependencies and platform leakage.
+- Prefer lightweight typed clients over large vendor SDKs when the integration
+  surface is small.
 
-- `catch (e) { return []; }` — hides infrastructure failures as empty results
-- `try { ... } catch { }` — empty catch block
-- Default values that mask configuration errors (e.g., `port || "6379"`)
-- `if (!result) return null` without logging or distinguishing error from empty
+Treat licensing, security, and version policy as evidence-based checks against
+the dependency and current repository rules, not a fixed blacklist in this
+skill.
 
-**Action**: Fail fast on business invariants. Log infrastructure errors. Only use fallbacks when the fallback behavior is explicitly documented and tested.
+## 7. App Ownership And Data Scope
 
-### 5. Test Quality
+Check every App-owned or user-owned read and write at the ingress and service
+boundary.
 
-**Check**: Do tests exercise real behavior or just compile-time types?
+- Prove the caller may access the App, Organization shell, Agent, Session,
+  Credential, File, or other scoped resource.
+- Carry the real scope identifier into explicit D1 queries.
+- Do not bypass domain services for control-plane operations.
+- Fail closed when ownership cannot be established.
+- Add focused cross-scope denial coverage for new sensitive access paths.
 
-Red flags:
+Do not invent a universal database wrapper or policy mechanism that the current
+Mosoo architecture does not use.
 
-- Tests that only verify `typeof x === "function"` or `expect(obj).toBeDefined()`
-- Integration tests that don't touch real infrastructure (mocked DB for RLS tests)
-- `describe.skip` or `it.todo` without a tracking issue
-- Tests that pass with empty implementations (testing the mock, not the code)
-- Data-plane code without integration tests against real PostgreSQL/Valkey
+## 8. Commit Hygiene
 
-**Action**: Every data-plane package needs `*.integration.test.ts` files that run against real services. Contract packages need type-level tests. Application packages need API-level tests.
+- Keep the commit a coherent, reviewable change.
+- Use `type(scope): subject` Conventional Commit syntax.
+- Use a real human author and committer identity; reject agent or bot identity
+  names and trailers.
+- Do not mix unrelated dependency upgrades, generated churn, or cleanup into
+  the feature.
 
-### 6. Dependency Governance
+Use `just commit-check` when reviewing commit metadata against the repository
+base.
 
-**Check**: Are new dependencies approved and properly declared?
+## 9. Architecture Boundaries
 
-Red flags:
+Use current documents and directory ownership, not memorized paths.
 
-- Dependencies not in root `package.json` allow-list
-- GPL/LGPL/AGPL/SSPL/BSL licensed dependencies
-- Pinned versions using `^` for beta/pre-release packages (should pin exact)
-- Dependencies declared in the wrong package (e.g., test-utils depending on db creating a cycle)
-- Circular workspace dependencies
+- `apps/api`: Cloudflare Worker API, domain services, GraphQL, auth, and runtime
+  control plane
+- `apps/web`: React console and generated API consumers
+- `apps/driver`: runtime driver and Sandbox container boundary
+- `pkgs/contracts`: true cross-boundary contracts
+- `pkgs/*`: focused shared packages that remain runtime-neutral unless their
+  package boundary explicitly says otherwise
 
-**Action**: Check license before adding. Use exact pins for pre-release. Verify no circular deps with `turbo`.
+Flag imports that reverse these ownership directions or leak application
+internals across boundaries. When a core noun or ownership boundary changes,
+update the active documentation anchor rather than creating an adapter that
+preserves two meanings.
 
-### 7. Multi-Tenancy Violations
+## 10. Operational Readiness
 
-**Check**: Does every database operation respect tenant isolation?
+New I/O and failure paths need evidence that operators can understand them.
 
-Red flags:
+- Use `@mosoo/observability` and its Vestig structured logger, wide events, and
+  W3C trace context instead of creating a parallel logging stack.
+- Preserve Cloudflare native `[observability.logs]` and
+  `[observability.traces]` configuration where applicable.
+- Keep API health checks on `/api/health`.
+- Include contextual structured logs for actionable failure paths.
+- Verify the smallest affected scope first:
+  - docs: `just fmt-check-path <path>`
+  - TypeScript: `just tc-package <package>`
+  - tests: `just test-package <package>` or `just test-file <path>`
+  - GraphQL changes: `just graphql-codegen`
+  - D1 schema changes: `just db-regen`, then `just db-migrate` when applying the
+    local baseline
+  - broad or cross-boundary changes: `just check`
 
-- Queries without `withTenantContext` wrapper
-- Direct SQL that bypasses RLS (outside admin/migration context)
-- Tables with `tenantId` column but missing `...tenantPolicy()` in schema
-- Tests that use superuser client for application-level queries
-- Missing RLS integration tests for new tenant-scoped tables
+Do not claim performance, availability, or runtime health without measurements,
+logs, traces, or a reproducible smoke.
 
-**Action**: Every tenant-scoped query goes through `withTenantContext`. Every new table with `tenantId` gets `...tenantPolicy()`. New tables get RLS integration test coverage.
+## Output
 
-### 8. Commit Hygiene
-
-**Check**: Are changes properly split by nature?
-
-Red flags:
-
-- Dependency upgrades mixed with feature code
-- Refactoring mixed with behavior changes
-- Documentation updates mixed with implementation
-- Infrastructure changes mixed with business logic
-- Commit messages that don't follow `type(scope): subject`
-
-**Action**: Split into separate commits. Each commit should be one logical change that can be reviewed, reverted, or cherry-picked independently.
-
-### 9. Architecture Boundary Violations
-
-**Check**: Do imports respect the dependency rules from README.md?
-
-Red flags:
-
-- `packages/contracts/*` importing from `packages/data-plane/*` (contracts must be pure)
-- `packages/platform/*` importing from `apps/*` (platform is consumed by apps, not the reverse)
-- Runtime-plane code importing control-plane internals (should consume SessionResolution contract)
-- Bun-specific APIs (`import { SQL } from "bun"`) in packages that should be runtime-neutral
-- `docs/harness/` or `docs/demo-prototype/` files committed to the main repo (separate git repos)
-
-**Action**: Check the dependency graph in README.md. If a cross-boundary import is needed, the shared type should move to `packages/contracts/`.
-
-### 10. Operational Readiness
-
-**Check**: Does new I/O code have observability?
-
-Red flags:
-
-- Database queries without `withSpan` tracing
-- New services without health check endpoints
-- Error paths without structured logging
-- Missing `just check` / `just build` verification before committing
-- Docker Compose changes not tested locally
-
-**Action**: Every service has OTel spans for key operations (ADR-007). Every error path logs with context. Run `just check` after every change, or the smallest package-level `bun run --filter <pkg> ...` command when the change is explicitly scoped.
-
-## Output Format
-
-After reviewing, produce a structured report:
-
-```
-## Review: [brief description of what was reviewed]
+```markdown
+## Review: <scope>
 
 ### Passed
-- [list of checks that passed cleanly]
+- <material checks that passed>
 
 ### Findings
-1. **[Category]** `file:line` — [description of issue]
-   Fix: [concrete fix]
+1. **<category>** `path:line` — <evidence and impact>
+   Fix: <concrete change>
 
-2. ...
+### Verification gaps
+- <required evidence that was not run or observed>
 
 ### Verdict
-[PASS | PASS WITH NOTES | NEEDS CHANGES]
+PASS | PASS WITH NOTES | NEEDS CHANGES
 ```
 
-If verdict is PASS, the changes are ready to commit. If NEEDS CHANGES, list the blocking issues.
+Use `NEEDS CHANGES` only for findings that violate current project rules,
+correctness, security, data integrity, or an explicit acceptance criterion.

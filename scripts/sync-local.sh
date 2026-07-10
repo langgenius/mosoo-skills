@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 # scripts/sync-local.sh — refresh the 6 skills that the public `skills` CLI cannot manage.
 #
-# Usage:
+# Usage from the mosoo-skills repository root:
 #   scripts/sync-local.sh                 # refresh all locally-maintained skills
 #   scripts/sync-local.sh <skill-name>    # refresh one skill
 #
-# After the run, review `git diff skills/<name>/` and commit if you want to adopt the upstream.
+# From any other CWD, invoke this script by its absolute path. Review with:
+#   git -C /absolute/path/to/mosoo-skills diff -- skills/<name>/
 
 set -euo pipefail
 

@@ -1,8 +1,10 @@
 # Skill sources
 
-All 20 skills, grouped by upstream. The 12 entries in `skills-lock.json` are tracked by the [`skills`](https://github.com/vercel-labs/skills) CLI and refreshed via `npx skills update`. 6 more sync from public upstreams the CLI can't enumerate via `scripts/sync-local.sh`. The remaining 2 are mosoo originals — this repo is their canonical home.
+All 20 skills, grouped by maintenance path. The 10 entries in `skills-lock.json` are tracked by the [`skills`](https://github.com/vercel-labs/skills) CLI and refreshed via `npx skills update`. 6 more sync from public upstreams the CLI cannot enumerate. The remaining 4 are Mosoo-maintained originals or adaptations.
 
-## CLI-tracked (12)
+Run every relative command on this page from the `mosoo-skills` repository root. From another directory, invoke `scripts/sync-local.sh` by its absolute path and review with `git -C /absolute/path/to/mosoo-skills diff -- skills/<name>/`.
+
+## CLI-tracked (10)
 
 | Local skill | Upstream | Refresh |
 | --- | --- | --- |
@@ -10,19 +12,16 @@ All 20 skills, grouped by upstream. The 12 entries in `skills-lock.json` are tra
 | [`cloudflare`](./skills/cloudflare) | [`cloudflare/skills@skills/cloudflare`](https://github.com/cloudflare/skills/tree/main/skills/cloudflare) | `npx skills update cloudflare` |
 | [`cloudflare-email-service`](./skills/cloudflare-email-service) | [`cloudflare/skills@skills/cloudflare-email-service`](https://github.com/cloudflare/skills/tree/main/skills/cloudflare-email-service) | `npx skills update cloudflare-email-service` |
 | [`durable-objects`](./skills/durable-objects) | [`cloudflare/skills@skills/durable-objects`](https://github.com/cloudflare/skills/tree/main/skills/durable-objects) | `npx skills update durable-objects` |
-| [`sandbox-sdk`](./skills/sandbox-sdk) | [`cloudflare/skills@skills/sandbox-sdk`](https://github.com/cloudflare/skills/tree/main/skills/sandbox-sdk) | `npx skills update sandbox-sdk` |
 | [`web-perf`](./skills/web-perf) | [`cloudflare/skills@skills/web-perf`](https://github.com/cloudflare/skills/tree/main/skills/web-perf) | `npx skills update web-perf` |
 | [`workers-best-practices`](./skills/workers-best-practices) | [`cloudflare/skills@skills/workers-best-practices`](https://github.com/cloudflare/skills/tree/main/skills/workers-best-practices) | `npx skills update workers-best-practices` |
 | [`wrangler`](./skills/wrangler) | [`cloudflare/skills@skills/wrangler`](https://github.com/cloudflare/skills/tree/main/skills/wrangler) | `npx skills update wrangler` |
 | [`playwright-cli`](./skills/playwright-cli) | [`microsoft/playwright-cli@skills/playwright-cli`](https://github.com/microsoft/playwright-cli/tree/main/skills/playwright-cli) | `npx skills update playwright-cli` |
-| [`no-use-effect`](./skills/no-use-effect) | [`Factory-AI/factory-plugins@plugins/typescript/skills/no-use-effect`](https://github.com/Factory-AI/factory-plugins/tree/master/plugins/typescript/skills/no-use-effect) | `npx skills update no-use-effect` |
 | [`typescript-expert`](./skills/typescript-expert) | [`davila7/claude-code-templates@cli-tool/components/skills/development/typescript-expert`](https://github.com/davila7/claude-code-templates/tree/main/cli-tool/components/skills/development/typescript-expert) | `npx skills update typescript-expert` |
 | [`complexity-optimizer`](./skills/complexity-optimizer) | [`Kappaemme-git/codex-complexity-optimizer@complexity-optimizer`](https://github.com/Kappaemme-git/codex-complexity-optimizer/tree/main/complexity-optimizer) | `npx skills update complexity-optimizer` |
 
-Bulk check / update:
+Bulk update:
 
 ```bash
-npx skills check    # diff every tracked skill against its upstream
 npx skills update   # apply pending updates (writes to skills/<name>/ and skills-lock.json)
 ```
 
@@ -48,13 +47,20 @@ npx skills update   # apply pending updates (writes to skills/<name>/ and skills
 | [`building-ai-agent-on-cloudflare`](./skills/building-ai-agent-on-cloudflare) | `cloudflare/skills@54ca4fd:skills/building-ai-agent-on-cloudflare/SKILL.md` | `scripts/sync-local.sh building-ai-agent-on-cloudflare` |
 | [`building-mcp-server-on-cloudflare`](./skills/building-mcp-server-on-cloudflare) | `cloudflare/skills@54ca4fd:skills/building-mcp-server-on-cloudflare/SKILL.md` | `scripts/sync-local.sh building-mcp-server-on-cloudflare` |
 
-## mosoo originals (2)
+## Mosoo-maintained (4)
 
-No public upstream. This repo is the canonical home — edit `skills/<name>/SKILL.md` directly and commit.
+This repository is the canonical home for these skills. Edit them directly and commit the result; do not add the adaptations to `skills-lock.json` unless they return to unmodified upstream behavior.
+
+Original skills with no public upstream:
 
 - [`code-review-guardrails`](./skills/code-review-guardrails) — review skill that catches sub-optimal coding patterns and constraint violations
 - [`typescript-style-guardrails`](./skills/typescript-style-guardrails) — readability-first TypeScript/TSX style guardrails for strict codebases
 
+Mosoo-maintained adaptations with upstream provenance:
+
+- [`no-use-effect`](./skills/no-use-effect) — adapted from [`Factory-AI/factory-plugins`](https://github.com/Factory-AI/factory-plugins/tree/master/plugins/typescript/skills/no-use-effect) to match Mosoo's direct external-synchronization use of React effects and Justfile commands
+- [`sandbox-sdk`](./skills/sandbox-sdk) — adapted from [`cloudflare/skills`](https://github.com/cloudflare/skills/tree/main/skills/sandbox-sdk) to preserve existing project configuration and require current package, Dockerfile, and official-doc evidence
+
 ## How `scripts/sync-local.sh` works
 
-The script holds a per-skill mapping (`<local-name>|<owner/repo>|<ref>|<upstream-path>`) and refreshes one or all entries by fetching that path from the pinned ref. Pass a skill name to refresh just one; pass nothing to refresh all 6. It writes nothing outside `skills/<name>/`, so a `git diff` after running shows exactly what changed upstream. Review the diff, commit if you want to adopt it.
+The script holds a per-skill mapping (`<local-name>|<owner/repo>|<ref>|<upstream-path>`) and refreshes one or all entries by fetching that path from the pinned ref. Pass a skill name to refresh just one; pass nothing to refresh all 6. It resolves its destination from the script location, so an absolute script invocation is safe from any CWD. It writes nothing outside `skills/<name>/`; review with `git diff -- skills/<name>/` from the repository root, or with the `git -C` command above from elsewhere.
