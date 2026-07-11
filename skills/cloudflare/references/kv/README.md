@@ -36,7 +36,7 @@ KV provides:
 
 ```bash
 wrangler kv namespace create MY_NAMESPACE
-# Add binding to wrangler.jsonc
+# Add the binding to the existing Wrangler config without changing its format
 ```
 
 ```typescript

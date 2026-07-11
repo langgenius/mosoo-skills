@@ -5,6 +5,17 @@ description: Skill for creating auth layers in TypeScript/JavaScript apps using 
 
 # Create Auth Skill
 
+## Project-first guardrail
+
+For an existing repository, read its active `AGENTS.md` and `CONTRIBUTING.md`,
+inspect pinned packages, the lockfile, schema ownership, and `just --list`.
+Those sources override this skill. In Mosoo, do not install or fetch `@latest`
+packages and do not run Better Auth CLI migration/generation, Prisma migration,
+or Drizzle push commands. Change the canonical schema, then use
+`just db-generate <name>`, review the SQL, run relevant API tests, and use
+`just db-migrations-check`/`just db-reset-local` as documented. Generic install
+and migration commands below are greenfield fallbacks only.
+
 Guide for adding authentication to TypeScript/JavaScript applications using Better Auth.
 
 **For code examples and syntax, see [better-auth.com/docs](https://better-auth.com/docs).**
@@ -43,7 +54,8 @@ Is this a new/empty project?
 
 ## Installation
 
-**Core:** `npm install better-auth`
+**Core (greenfield only):** add a reviewed, pinned `better-auth` version with
+the selected project package manager.
 
 **Scoped packages (as needed):**
 | Package | Use case |
@@ -130,9 +142,9 @@ Add OAuth secrets as needed: `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `GOOGLE
 
 | Adapter         | Command                                                                                            |
 | --------------- | -------------------------------------------------------------------------------------------------- |
-| Built-in Kysely | `npx @better-auth/cli@latest migrate` (applies directly)                                           |
-| Prisma          | `npx @better-auth/cli@latest generate --output prisma/schema.prisma` then `npx prisma migrate dev` |
-| Drizzle         | `npx @better-auth/cli@latest generate --output src/db/auth-schema.ts` then `npx drizzle-kit push`  |
+| Built-in Kysely | `npx @better-auth/cli@<reviewed-version> migrate` (applies directly)                                           |
+| Prisma          | `npx @better-auth/cli@<reviewed-version> generate --output prisma/schema.prisma` then `npx prisma migrate dev` |
+| Drizzle         | `npx @better-auth/cli@<reviewed-version> generate --output src/db/auth-schema.ts` then `npx drizzle-kit push`  |
 
 **Re-run after adding plugins.**
 

@@ -13,6 +13,16 @@ description: |
 
 # Building Cloudflare Agents
 
+## Project-first guardrail
+
+For an existing repository, read its active `AGENTS.md` and `CONTRIBUTING.md`,
+inspect its Wrangler format, pinned packages and lockfile, and run `just --list`
+when available. Those sources override this skill and linked references. In
+Mosoo, preserve `wrangler.toml`, do not install or upgrade global/project
+packages, and use documented `just` recipes for setup, validation, runtime, and
+deployment instead of bare `wrangler`, `npm`, or `npx`. The scaffold and raw
+deployment commands below are greenfield fallbacks only.
+
 Your knowledge of the Agents SDK may be outdated. **Prefer retrieval over pre-training** for any agent-building task.
 
 ## Retrieval Sources
@@ -35,9 +45,9 @@ Your knowledge of the Agents SDK may be outdated. **Prefer retrieval over pre-tr
 
 - Cloudflare account with Workers enabled
 - Node.js 18+ and npm/pnpm/yarn
-- Wrangler CLI (`npm install -g wrangler`)
+- A repository-pinned Wrangler command, or a reviewed CLI version for a new standalone project
 
-## Quick Start
+## Greenfield Quick Start
 
 ```bash
 npm create cloudflare@latest -- my-agent --template=cloudflare/agents-starter
@@ -373,6 +383,9 @@ See [references/agent-patterns.md](references/agent-patterns.md) for:
 - Human-in-the-loop workflows
 
 ## Deployment
+
+In an existing repository, use its reviewed deployment recipe. The following
+commands apply only to a greenfield project without wrappers.
 
 ```bash
 # Deploy

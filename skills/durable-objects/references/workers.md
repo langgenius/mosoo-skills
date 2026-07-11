@@ -1,10 +1,14 @@
 # Cloudflare Workers Best Practices
 
+> **Project-first:** Preserve the active repository's Wrangler format and
+> wrapper commands. In Mosoo, update `wrangler.toml` in place; examples below
+> describe equivalent fields and never require a format migration.
+
 High-level guidance for Workers that invoke Durable Objects.
 
 ## Wrangler Configuration
 
-### wrangler.jsonc (Recommended)
+### JSONC representation for a greenfield project
 
 ```jsonc
 {
@@ -47,7 +51,7 @@ High-level guidance for Workers that invoke Durable Objects.
 }
 ```
 
-### wrangler.toml (Alternative)
+### Equivalent TOML representation
 
 ```toml
 name = "my-worker"

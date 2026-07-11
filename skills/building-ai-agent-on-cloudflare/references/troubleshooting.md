@@ -1,5 +1,9 @@
 # Agent Troubleshooting
 
+> **Project-first:** Preserve active repository configuration, pinned
+> dependencies, and wrapper commands. In Mosoo, use reviewed `just` recipes for
+> runtime checks and deploys; raw commands below are greenfield fallbacks.
+
 Common issues and solutions for Cloudflare Agents.
 
 ## Connection Issues

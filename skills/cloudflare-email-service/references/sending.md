@@ -1,5 +1,9 @@
 # Sending Emails — Workers Binding & Agents SDK
 
+> **Project-first:** Preserve the active Wrangler format, pinned packages, and
+> repository wrapper commands. In Mosoo, update `wrangler.toml` and use
+> documented `just` recipes; JSONC and bare CLI snippets are greenfield only.
+
 Send emails from Cloudflare Workers using the native binding, or from AI agents using the Agents SDK. If your app is NOT on Workers, use the [REST API](rest-api.md) instead.
 
 ## Workers Binding
@@ -21,7 +25,9 @@ For local development, add `"remote": true` so email sends are proxied to the re
 { "send_email": [{ "name": "EMAIL", "remote": true }] }
 ```
 
-Run `npx wrangler types` to auto-generate the `Env` interface with your `EMAIL` binding. This produces a `worker-configuration.d.ts` with the real `SendEmail`, `EmailAttachment`, `EmailAddress`, and related types from the workerd runtime. Always use these generated types — do not define them manually.
+Use the repository's type-generation recipe to generate the `Env` interface
+with the `EMAIL` binding. Use the generated runtime types rather than defining
+them manually.
 
 **Note:** Workers binding uses `email` in the from object (`EmailAddress` type). REST API uses `address`. See [rest-api.md](rest-api.md).
 

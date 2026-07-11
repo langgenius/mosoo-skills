@@ -5,6 +5,20 @@ description: Cloudflare Workers CLI for deploying, developing, and managing Work
 
 # Wrangler CLI
 
+## Project-first guardrail
+
+Before applying any setup, configuration, dependency, or command below, read
+the active repository's `AGENTS.md` and `CONTRIBUTING.md`, inspect its existing
+Wrangler file, package manifests and lockfile, and run `just --list` when a
+Justfile exists. Those sources override this skill and every linked reference.
+
+In Mosoo, preserve `wrangler.toml`, keep repository-pinned dependencies, and
+use documented `just` recipes; `bun` and `vp` remain wrapper implementation
+details. Do not migrate TOML to JSONC, install or upgrade packages, or replace
+repository typecheck, test, migration, or deployment recipes with bare
+`wrangler`, `npm`, `npx`, or `tsc`. Generic commands and JSONC snippets below
+are greenfield fallbacks only when a repository has no established workflow.
+
 Your knowledge of Wrangler CLI flags, config fields, and subcommands may be outdated. **Prefer retrieval over pre-training** for any Wrangler task.
 
 ## Retrieval Sources
@@ -17,27 +31,30 @@ Fetch the **latest** information before writing or reviewing Wrangler commands a
 | Wrangler config schema | `node_modules/wrangler/config-schema.json` | Config fields, binding shapes, allowed values |
 | Cloudflare docs | Search tool or `https://developers.cloudflare.com/workers/` | API reference, compatibility dates/flags |
 
-## FIRST: Check if Wrangler is installed, and if not, install it
+## First: Resolve the repository's Wrangler command
 
-Check if Wrangler is installed by running:
+Inspect the pinned package and repository wrapper first. In a greenfield
+project without either, check the available command:
 
 ```bash
-wrangler --version  # Requires v4.x+
+wrangler --version
 ```
 
-If Wrangler is not installed, you should install it by running:
+Only in a greenfield project, choose a version from current official docs and
+install it with that project's package manager. Do not use an unreviewed
+floating version:
 
 ```bash
-npm install -D wrangler@latest
+npm install -D wrangler@<reviewed-version>
 ```
 
 Wherever possible, you should use Wrangler instead of manually constructing API requests.
 
 ## Key Guidelines
 
-- **Use `wrangler.jsonc`**: Prefer JSON config over TOML. Newer features are JSON-only.
+- **Preserve config format**: Edit the existing TOML, JSON, or JSONC file in place. Use JSONC only for a new project that selected it.
 - **Set `compatibility_date`**: Use a recent date (within 30 days). Check https://developers.cloudflare.com/workers/configuration/compatibility-dates/
-- **Generate types after config changes**: Run `wrangler types` to update TypeScript bindings.
+- **Generate types after config changes**: Use the repository's type-generation recipe; use `wrangler types` directly only when no wrapper exists.
 - **Local dev defaults to local storage**: Bindings use local simulation unless `remote: true`.
 - **Profile Worker startup**: Run `wrangler check startup` to measure startup time and detect scripts that exceed the startup time limit.
 - **Use environments for staging/prod**: Define `env.staging` and `env.production` in config.
@@ -67,7 +84,7 @@ npx create-cloudflare@latest my-app
 
 ---
 
-## Configuration (wrangler.jsonc)
+## Configuration example for a new JSONC project
 
 ### Minimal Config
 
@@ -375,6 +392,13 @@ wrangler r2 object delete my-bucket/path/file.txt
 ---
 
 ## D1 (SQL Database)
+
+> **Mosoo production safety:** The commands in this section are CLI syntax
+> references, not authorization to operate on production. Never delete, reset,
+> recreate, restore, or run ad hoc remote SQL against Mosoo production D1.
+> Applied migrations are append-only. Use the active repository's documented
+> `just` migration and release workflow, with explicit approval plus backup and
+> rollback plans for destructive or data-rewrite work.
 
 ### Manage Databases
 
@@ -862,7 +886,8 @@ export default defineWorkersConfig({
   test: {
     poolOptions: {
       workers: {
-        wrangler: { configPath: "./wrangler.jsonc" },
+        // Preserve the repository's existing Wrangler config path and format.
+        wrangler: { configPath: "./wrangler.toml" },
       },
     },
   },
@@ -911,9 +936,9 @@ wrangler docs configuration
 
 ## Best Practices
 
-1. **Version control `wrangler.jsonc`**: Treat as source of truth for Worker config.
+1. **Version control the active Wrangler config**: Keep the repository's TOML, JSON, or JSONC file as the source of truth.
 2. **Use automatic provisioning**: Omit resource IDs for auto-creation on deploy.
-3. **Run `wrangler types` in CI**: Add to build step to catch binding mismatches.
+3. **Check generated types in CI**: Use the repository's type-generation recipe; use `wrangler types` directly only in an unwrapped project.
 4. **Use environments**: Separate staging/production with `env.staging`, `env.production`.
 5. **Set `compatibility_date`**: Update quarterly to get new runtime features.
 6. **Use `.dev.vars` for local secrets**: Never commit secrets to config.

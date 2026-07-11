@@ -1,5 +1,9 @@
 # Code Review — Workers
 
+> **Project-first:** Preserve the active Wrangler format, pinned types, and
+> repository validation recipes. In Mosoo, use `wrangler.toml` and documented
+> `just` commands; JSONC and bare CLI examples are greenfield references only.
+
 How to review Workers code for type correctness, API usage, config validity, and best practices. This is self-contained — do not assume access to other skills.
 
 ## Retrieval
@@ -8,7 +12,9 @@ Prefer retrieval over pre-training. Types, config schemas, and APIs change with 
 
 ### Workers types
 
-Fetch the latest `@cloudflare/workers-types` before reviewing. The project may have an older version installed.
+Validate implementation against the repository-pinned Workers types. Fetch a
+newer version only into a scratch directory for read-only compatibility
+research; never replace the pinned dependency as part of review.
 
 ```bash
 mkdir -p /tmp/workers-types-latest && \
@@ -19,7 +25,8 @@ mkdir -p /tmp/workers-types-latest && \
 
 Search this file for the specific type, class, or interface under review. Do not guess type names.
 
-Alternative: `npx wrangler types` generates a typed `Env` interface from the local wrangler config.
+Alternative for an unwrapped greenfield project: `wrangler types` generates a
+typed `Env` interface from the local Wrangler config.
 
 Fallback: read `node_modules/@cloudflare/workers-types/index.d.ts`. Note the installed version.
 
@@ -95,9 +102,9 @@ For executable examples, verify: `name`, `compatibility_date`, `main`. Check the
 
 ### Config format
 
-- **JSONC** (`wrangler.jsonc`) — preferred for new projects
+- **JSONC** (`wrangler.jsonc`) — available for projects that select it
 - **JSON** (`wrangler.json`) — valid but no comments
-- **TOML** (`wrangler.toml`) — legacy; acceptable in existing content, flag in new projects
+- **TOML** (`wrangler.toml`) — supported; preserve it when already selected
 
 ### Binding-code consistency
 
@@ -160,7 +167,7 @@ Valid: plain objects, arrays, strings, numbers, booleans, null, `ArrayBuffer`, `
 5. **Check config** — compatibility_date, nodejs_compat, observability, secrets, binding-code consistency
 6. **Check patterns** — streaming, floating promises, global state, serialization boundaries
 7. **Check security** — crypto usage, secret handling, timing-safe comparisons, error handling
-8. **Validate with tools** — `npx tsc --noEmit`, lint for `no-floating-promises`
+8. **Validate with project tools** — use the repository's focused typecheck and lint recipes
 9. **Assess risk** — HIGH (auth, crypto, bindings), MEDIUM (business logic, config), LOW (style, comments)
 
 ### Output format

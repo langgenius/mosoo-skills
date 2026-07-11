@@ -1,10 +1,14 @@
 # Testing Durable Objects
 
+> **Project-first:** Use repository-pinned test dependencies and documented
+> test recipes. In Mosoo, do not install the versions shown below; use focused
+> `just test-package`/`just test-file` recipes from `CONTRIBUTING.md`.
+
 Use `@cloudflare/vitest-pool-workers` to test DOs inside the Workers runtime.
 
 ## Setup
 
-### Install Dependencies
+### Greenfield dependency example
 
 ```bash
 npm i -D vitest@~3.2.0 @cloudflare/vitest-pool-workers
@@ -250,8 +254,7 @@ describe("SQLite", () => {
 ## Running Tests
 
 ```bash
-npx vitest        # Watch mode
-npx vitest run    # Single run
+# Use the repository's documented focused and one-shot test recipes.
 ```
 
 package.json:

@@ -146,7 +146,7 @@ Use current documents and directory ownership, not memorized paths.
 - `apps/api`: Cloudflare Worker API, domain services, GraphQL, auth, and runtime
   control plane
 - `apps/web`: React console and generated API consumers
-- `apps/driver`: runtime driver and Sandbox container boundary
+- `apps/driver`: Agent Driver and Sandbox container boundary
 - `pkgs/contracts`: true cross-boundary contracts
 - `pkgs/*`: focused shared packages that remain runtime-neutral unless their
   package boundary explicitly says otherwise

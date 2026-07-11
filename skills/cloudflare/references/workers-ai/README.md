@@ -32,7 +32,7 @@ export default {
 ```
 
 ```bash
-# Setup - add binding to wrangler.jsonc
+# Setup - add the binding to the existing Wrangler config without changing its format
 wrangler dev --remote  # Must use --remote for AI
 wrangler deploy
 ```

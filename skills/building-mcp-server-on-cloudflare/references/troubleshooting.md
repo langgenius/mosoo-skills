@@ -1,5 +1,10 @@
 # MCP Server Troubleshooting
 
+> **Project-first:** Use the active repository's wrapper commands for deploys,
+> D1 migrations, dependency changes, and validation. In Mosoo, never apply a
+> remote migration or deploy from a raw command in this reference; use reviewed
+> `just` recipes and the production D1 safety contract.
+
 Common errors and solutions for MCP servers on Cloudflare.
 
 ## Connection Issues
@@ -209,19 +214,14 @@ database_name = "mydb"
 database_id = "xxx-xxx"
 ```
 
-After adding bindings: `wrangler deploy`
+After adding bindings, use the repository's reviewed deployment recipe.
 
 ### "D1_ERROR: no such table"
 
 Migrations not applied.
 
-```bash
-# Local
-wrangler d1 migrations apply DB_NAME --local
-
-# Production
-wrangler d1 migrations apply DB_NAME
-```
+Use the repository's local migration recipe. Production migration application
+must go through its reviewed deploy path; never run a generic remote command.
 
 ### Durable Object Not Found
 

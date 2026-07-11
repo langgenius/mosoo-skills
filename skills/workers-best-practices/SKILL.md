@@ -1,7 +1,20 @@
 ---
 name: workers-best-practices
-description: Reviews and authors Cloudflare Workers code against production best practices. Load when writing new Workers, reviewing Worker code, configuring wrangler.jsonc, or checking for common Workers anti-patterns (streaming, floating promises, global state, secrets, bindings, observability). Biases towards retrieval from Cloudflare docs over pre-trained knowledge.
+description: Reviews and authors Cloudflare Workers code against production best practices. Load when writing new Workers, reviewing Worker code, configuring Wrangler, or checking for common Workers anti-patterns (streaming, floating promises, global state, secrets, bindings, observability). Biases towards retrieval from Cloudflare docs over pre-trained knowledge.
 ---
+
+# Workers Best Practices
+
+## Project-first guardrail
+
+For an existing repository, read its active `AGENTS.md` and `CONTRIBUTING.md`,
+inspect the existing Wrangler format, pinned packages and lockfile, and run
+`just --list` when available. Those project sources override this skill and
+all linked references. In Mosoo, preserve `wrangler.toml`, do not fetch or
+upgrade packages to replace pinned types, and use documented `just` recipes
+instead of bare `wrangler`, `npm`, `npx`, or `tsc`. Treat current upstream docs
+and types as read-only compatibility evidence; generic commands and JSONC
+examples below are greenfield fallbacks only.
 
 Your knowledge of Cloudflare Workers APIs, types, and configuration may be outdated. **Prefer retrieval over pre-training** for any Workers code task — writing or reviewing.
 
@@ -18,10 +31,12 @@ Fetch the **latest** versions before writing or reviewing Workers code. Do not r
 
 ## FIRST: Fetch Latest References
 
-Before reviewing or writing Workers code, retrieve the current best practices page and relevant type definitions. If the project's `node_modules` has an older version, **prefer the latest published version**.
+Before reviewing or writing Workers code, retrieve the current best practices
+page. Validate implementation against the repository-pinned types; inspect
+newer published types only as read-only compatibility research.
 
 ```bash
-# Fetch latest workers types
+# Optional read-only scratch research; never replace repository-pinned types.
 mkdir -p /tmp/workers-types-latest && \
   npm pack @cloudflare/workers-types --pack-destination /tmp/workers-types-latest && \
   tar -xzf /tmp/workers-types-latest/cloudflare-workers-types-*.tgz -C /tmp/workers-types-latest
@@ -40,10 +55,10 @@ mkdir -p /tmp/workers-types-latest && \
 | Rule | Summary |
 |------|---------|
 | Compatibility date | Set `compatibility_date` to today on new projects; update periodically on existing ones |
-| nodejs_compat | Enable the `nodejs_compat` flag — many libraries depend on Node.js built-ins |
-| wrangler types | Run `wrangler types` to generate `Env` — never hand-write binding interfaces |
+| nodejs_compat | Verify whether the active project and its dependencies require this flag before proposing it |
+| Wrangler types | Use the repository's type-generation recipe; never hand-write binding interfaces |
 | Secrets | Use `wrangler secret put`, never hardcode secrets in config or source |
-| wrangler.jsonc | Use JSONC config for non-secret settings — newer features are JSON-only |
+| Wrangler config | Preserve the existing TOML, JSON, or JSONC format |
 
 ### Request & Response Handling
 
@@ -59,13 +74,13 @@ mkdir -p /tmp/workers-types-latest && \
 | Bindings over REST | Use in-process bindings (KV, R2, D1, Queues) — not the Cloudflare REST API |
 | Queues & Workflows | Move async/background work off the critical path |
 | Service bindings | Use service bindings for Worker-to-Worker calls — not public HTTP |
-| Hyperdrive | Always use Hyperdrive for external PostgreSQL/MySQL connections |
+| Hyperdrive | Evaluate it against the active architecture and current docs before proposing it |
 
 ### Observability
 
 | Rule | Summary |
 |------|---------|
-| Logs & Traces | Enable `observability` in config with `head_sampling_rate`; use structured JSON logging |
+| Logs & Traces | Preserve the active observability contract; propose config changes only with project evidence |
 
 ### Code Patterns
 
@@ -108,7 +123,7 @@ mkdir -p /tmp/workers-types-latest && \
 4. **Check config** — compatibility_date, nodejs_compat, observability, secrets, binding-code consistency
 5. **Check patterns** — streaming, floating promises, global state, serialization boundaries
 6. **Check security** — crypto usage, secret handling, timing-safe comparisons, error handling
-7. **Validate with tools** — `npx tsc --noEmit`, lint for `no-floating-promises`
+7. **Validate with project tools** — use the active repository's focused typecheck and lint recipes; in Mosoo start with `just tc-package <package>` and broaden according to `CONTRIBUTING.md`
 8. **Reference rules** — see `references/rules.md` for each rule's correct pattern
 
 ## Scope

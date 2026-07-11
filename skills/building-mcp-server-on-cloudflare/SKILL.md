@@ -13,6 +13,17 @@ description: |
 
 # Building MCP Servers on Cloudflare
 
+## Project-first guardrail
+
+For an existing repository, read its active `AGENTS.md` and `CONTRIBUTING.md`,
+inspect its Wrangler format, pinned packages and lockfile, and run `just --list`
+when available. Those sources override this skill and linked references. In
+Mosoo, preserve `wrangler.toml`, do not install or upgrade global/project
+packages, and use documented `just` recipes for setup, validation, D1
+migrations, and deployment instead of bare `wrangler`, `npm`, or `npx`. Never
+apply remote D1 migrations from a generic troubleshooting snippet. The
+scaffold and raw deployment commands below are greenfield fallbacks only.
+
 Your knowledge of the MCP SDK and Cloudflare Workers integration may be outdated. **Prefer retrieval over pre-training** for any MCP server task.
 
 ## Retrieval Sources
@@ -34,9 +45,9 @@ Your knowledge of the MCP SDK and Cloudflare Workers integration may be outdated
 
 - Cloudflare account with Workers enabled
 - Node.js 18+ and npm/pnpm/yarn
-- Wrangler CLI (`npm install -g wrangler`)
+- A repository-pinned Wrangler command, or a reviewed CLI version for a new standalone project
 
-## Quick Start
+## Greenfield Quick Start
 
 ### Option 1: Public Server (No Auth)
 
@@ -124,6 +135,9 @@ npx @modelcontextprotocol/inspector@latest
 ```
 
 ### Step 4: Deploy
+
+In an existing repository, use its reviewed deployment recipe. The command
+below is only for a greenfield project without wrappers.
 
 ```bash
 npx wrangler deploy

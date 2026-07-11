@@ -5,6 +5,15 @@ description: Build AI agents on Cloudflare Workers using the Agents SDK. Load wh
 
 # Cloudflare Agents SDK
 
+## Project-first guardrail
+
+For an existing repository, read its active `AGENTS.md` and `CONTRIBUTING.md`,
+inspect its Wrangler format, pinned packages and lockfile, and run `just --list`
+when available. Those sources override this skill and every linked reference.
+In Mosoo, preserve `wrangler.toml`, do not install or upgrade SDK packages, and
+use documented `just` recipes instead of bare `wrangler`, `npm`, or `npx`.
+Generic install and JSONC examples below are greenfield fallbacks only.
+
 Your knowledge of the Agents SDK may be outdated. **Prefer retrieval over pre-training** for any Agents SDK task.
 
 ## Retrieval Sources
@@ -70,13 +79,14 @@ The Agents SDK provides:
 - **Browser tools** (experimental) — CDP-powered browsing via `agents/browser`
 - **Think** (experimental) — Higher-level chat agent via `@cloudflare/think`
 
-## FIRST: Verify Installation
+## First: Verify the pinned installation
 
 ```bash
-npm ls agents  # Should show agents package
+# Inspect package.json and the repository lockfile for the agents package.
 ```
 
-If not installed:
+In an existing project, stop and follow its dependency-change policy. For a
+greenfield npm project only:
 ```bash
 npm install agents
 ```
@@ -86,7 +96,10 @@ For chat agents:
 npm install agents @cloudflare/ai-chat ai @ai-sdk/react
 ```
 
-## Wrangler Configuration
+## Wrangler configuration shape
+
+Merge equivalent fields into the existing Wrangler file without changing its
+format. The JSONC below is a greenfield example.
 
 ```jsonc
 {

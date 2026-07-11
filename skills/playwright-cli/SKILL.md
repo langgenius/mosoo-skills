@@ -1,10 +1,21 @@
 ---
 name: playwright-cli
 description: Automate browser interactions, test web pages and work with Playwright tests.
-allowed-tools: Bash(playwright-cli:*) Bash(npx:*) Bash(npm:*)
+allowed-tools: Bash(playwright-cli:*) Bash(just:*) Bash(bun:*) Bash(vp:*)
 ---
 
 # Browser Automation with playwright-cli
+
+## Project-first guardrail
+
+For an existing repository, read its active `AGENTS.md` and `CONTRIBUTING.md`,
+inspect its package manifests and lockfile, and run `just --list` when
+available. Those project sources override this skill and all linked
+references. In Mosoo, use the repository's pinned browser tooling and
+documented `just`, `bun`, or `vp` recipes. Do not initialize Playwright,
+install or upgrade packages, use `npx`, or globally install a latest CLI.
+Direct `playwright-cli` browser control is not a substitute for the project's
+required test or acceptance recipes.
 
 ## Quick start
 
@@ -307,19 +318,13 @@ playwright-cli close-all
 playwright-cli kill-all
 ```
 
-## Installation
+## Command availability
 
-If global `playwright-cli` command is not available, try a local version via `npx playwright-cli`:
-
-```bash
-npx --no-install playwright-cli --version
-```
-
-When local version is available, use `npx playwright-cli` in all commands. Otherwise, install `playwright-cli` as a global command:
-
-```bash
-npm install -g @playwright/cli@latest
-```
+Use `command -v playwright-cli` to detect an already configured standalone
+browser-control command. In a repository, prefer its documented wrapper and
+pinned package. If neither exists, report the missing capability and ask
+before installing or changing user-level tooling; do not silently fetch a
+latest or global package.
 
 ## Example: Form submission
 

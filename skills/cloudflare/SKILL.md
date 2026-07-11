@@ -22,11 +22,23 @@ Fetch the **latest** information before citing specific numbers, API signatures,
 
 When a reference file and the docs disagree, **trust the docs**. This is especially important for: numeric limits, pricing tiers, type signatures, and configuration options.
 
-For Sandbox work, preserve an existing Wrangler TOML, JSON, or JSONC format.
-Derive the container image tag from the repository's installed
-`@cloudflare/sandbox` package, existing Dockerfile, and current official docs;
-the package and image versions must match. Do not copy a baked-in image tag
-from a reference example.
+## Project-first guardrail
+
+For an existing repository, read its active `AGENTS.md` and `CONTRIBUTING.md`,
+inspect its existing Wrangler format, pinned packages and lockfile, and run
+`just --list` when available. Those sources override this skill and all
+references. In Mosoo, preserve `wrangler.toml`, do not install or upgrade
+packages, and use documented `just` recipes instead of bare `wrangler`, `npm`,
+`npx`, or `tsc`. Generic config and command examples are greenfield fallbacks.
+
+For Sandbox work, derive the container image tag from the repository's
+installed `@cloudflare/sandbox` package, existing Dockerfile, and current
+official docs; package and image versions must match.
+
+In Mosoo, production D1 is never reset, deleted, recreated, or restored by a
+generic example. Applied migrations are append-only. Use the active
+repository's documented migration and release workflow; remote or destructive
+D1 snippets in references are informational and never authorize execution.
 
 ## Quick Decision Trees
 

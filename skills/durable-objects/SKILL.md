@@ -5,6 +5,16 @@ description: Create and review Cloudflare Durable Objects. Use when building sta
 
 # Durable Objects
 
+## Project-first guardrail
+
+For an existing repository, read its active `AGENTS.md` and `CONTRIBUTING.md`,
+inspect its Wrangler format, pinned packages and lockfile, and run `just --list`
+when available. Those sources override this skill and every linked reference.
+In Mosoo, preserve `wrangler.toml`, do not install or upgrade Vitest or Workers
+packages, and use documented `just` recipes rather than bare `wrangler`,
+`npm`, `npx`, or `tsc`. Generic JSONC and install snippets are greenfield
+fallbacks only.
+
 Build stateful, coordinated applications on Cloudflare's edge using Durable Objects.
 
 ## Retrieval Sources
@@ -57,7 +67,10 @@ Search: `blockConcurrencyWhile`, `idFromName`, `getByName`, `setAlarm`, `sql.exe
 
 ## Quick Reference
 
-### Wrangler Configuration
+### Wrangler configuration shape
+
+Preserve the active config format. The following JSONC is only a greenfield
+representation of the required fields.
 
 ```jsonc
 // wrangler.jsonc

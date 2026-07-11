@@ -1,5 +1,9 @@
 # Workers Best Practices — Rules
 
+> **Project-first:** Preserve the active Wrangler format, pinned dependencies,
+> and repository wrapper commands. In Mosoo, do not replace `wrangler.toml` or
+> bypass `just`; configuration and CLI snippets below are greenfield examples.
+
 Each rule has an imperative summary, what to check, the correct pattern, and an anti-pattern where applicable. Code examples are plain TypeScript — no MDX components.
 
 When a rule involves config fields or API signatures that may evolve, a **Retrieve** callout reminds you to check the latest docs or types before flagging. All doc paths are relative to `https://developers.cloudflare.com`.
@@ -36,9 +40,11 @@ The `nodejs_compat` flag enables Node.js built-in modules (`node:crypto`, `node:
 }
 ```
 
-### Generate binding types with wrangler types
+### Generate binding types through the repository workflow
 
-Never hand-write the `Env` interface. Run `wrangler types` to generate it from the wrangler config. Re-run after adding or renaming any binding.
+Never hand-write the `Env` interface. Use the repository's type-generation
+recipe after adding or renaming a binding; use `wrangler types` directly only
+when no wrapper exists.
 
 **Check**: no manually defined `Env` or `interface Env` that duplicates wrangler config bindings. Look for `satisfies ExportedHandler<Env>` pattern on the default export.
 
@@ -84,11 +90,13 @@ Anti-pattern:
 }
 ```
 
-### Use wrangler.jsonc for config
+### Preserve the active Wrangler configuration format
 
-Prefer `wrangler.jsonc` over `wrangler.toml`. Newer features are JSON-only. JSONC supports comments for documenting config decisions.
+Edit existing TOML, JSON, or JSONC in place. Choose JSONC only for a new project
+whose current requirements support it.
 
-**Check**: project uses `wrangler.jsonc` (or `wrangler.json`). Flag `wrangler.toml` in new projects.
+**Check**: configuration matches active project rules and current Wrangler
+schema. Do not flag an established TOML file merely for its format.
 
 ---
 

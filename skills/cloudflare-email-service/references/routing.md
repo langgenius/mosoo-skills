@@ -1,5 +1,8 @@
 # Receiving & Routing Inbound Email
 
+> **Project-first:** Preserve the active Wrangler format, pinned packages, and
+> repository type-generation recipe. Bare CLI snippets are greenfield only.
+
 Handle incoming emails sent to your domain via a Worker's `email()` handler. Forward, reply, reject, or parse emails programmatically.
 
 For full API details, see the [Email Routing docs](https://developers.cloudflare.com/email-service/api/route-emails/email-handler/).
@@ -21,7 +24,8 @@ Set up routing rules in **Dashboard** > **Compute & AI** > **Email Service** > *
 
 ## ForwardableEmailMessage
 
-The `message` parameter is a `ForwardableEmailMessage`. Run `npx wrangler types` to get the full type definition. Key properties and methods:
+The `message` parameter is a `ForwardableEmailMessage`. Use the repository's
+type-generation recipe to get the full definition. Key properties and methods:
 
 - `message.from` / `message.to` — envelope addresses (SMTP MAIL FROM / RCPT TO). `message.from` is trustworthy; header addresses can be spoofed.
 - `message.headers` — `Headers` object (use `.get("subject")`, `.get("message-id")`, etc.)

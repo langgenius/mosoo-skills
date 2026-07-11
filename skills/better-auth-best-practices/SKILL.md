@@ -5,6 +5,17 @@ description: Skill for integrating Better Auth - the comprehensive TypeScript au
 
 # Better Auth Integration Guide
 
+## Project-first guardrail
+
+For an existing repository, read its active `AGENTS.md` and `CONTRIBUTING.md`,
+inspect pinned packages, the lockfile, schema ownership, and `just --list`.
+Those sources override this skill. In Mosoo, do not install or fetch `@latest`
+packages and do not run Better Auth CLI migration/generation or Drizzle push
+commands. Change the canonical schema, then use `just db-generate <name>`,
+review the SQL, run relevant API tests, and use
+`just db-migrations-check`/`just db-reset-local` as documented. Generic CLI
+commands below are greenfield fallbacks only.
+
 **Always consult [better-auth.com/docs](https://better-auth.com/docs) for code examples and latest API.**
 
 Better Auth is a TypeScript-first, framework-agnostic auth framework supporting email/password, OAuth, magic links, passkeys, and more via plugins.
@@ -24,13 +35,13 @@ Only define `baseURL`/`secret` in config if env vars are NOT set.
 
 CLI looks for `auth.ts` in: `./`, `./lib`, `./utils`, or under `./src`. Use `--config` for custom path.
 
-### CLI Commands
+### CLI commands for projects without an established schema workflow
 
-- `npx @better-auth/cli@latest migrate` - Apply schema (built-in adapter)
-- `npx @better-auth/cli@latest generate` - Generate schema for Prisma/Drizzle
+- `npx @better-auth/cli@<reviewed-version> migrate` - Apply schema (built-in adapter)
+- `npx @better-auth/cli@<reviewed-version> generate` - Generate schema for Prisma/Drizzle
 - `npx @better-auth/cli mcp --cursor` - Add MCP to AI tools
 
-**Re-run after adding/changing plugins.**
+Do not run these in Mosoo; follow the project-first workflow above.
 
 ---
 
