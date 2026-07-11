@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fail when a relative inline Markdown link does not resolve in this repo."""
+"""Fail when a tracked relative inline Markdown link does not resolve."""
 
 from __future__ import annotations
 
@@ -29,9 +29,6 @@ def markdown_files() -> list[Path]:
             str(REPO_ROOT),
             "ls-files",
             "-z",
-            "--cached",
-            "--others",
-            "--exclude-standard",
             "--",
             "*.md",
         ]

@@ -1,42 +1,25 @@
 # Skill sources
 
-All 20 skills, grouped by maintenance path. The 1 entry in
-`skills-lock.json` are tracked by the
-[`skills`](https://github.com/vercel-labs/skills) CLI. 1 unmodified skill syncs
-from a public upstream the CLI cannot enumerate. The remaining 18 are
-Mosoo-maintained originals or adaptations.
+All 20 skills, grouped by maintenance path. One is an unmodified public-upstream
+copy refreshed by `scripts/sync.sh`. The remaining 19 are Mosoo-maintained
+originals or adaptations.
 
 Run every relative command on this page from the `mosoo-skills` repository
-root. From another directory, invoke `scripts/sync-local.sh` by its absolute
+root. From another directory, invoke `scripts/sync.sh` by its absolute
 path and review with
 `git -C /absolute/path/to/mosoo-skills diff -- skills/<name>/`.
 
-## CLI-tracked (1)
+## Synced upstream copy (1)
 
 | Local skill | Upstream | Refresh |
 | --- | --- | --- |
-| [`complexity-optimizer`](./skills/complexity-optimizer) | [`Kappaemme-git/codex-complexity-optimizer@complexity-optimizer`](https://github.com/Kappaemme-git/codex-complexity-optimizer/tree/main/complexity-optimizer) | `npx skills update complexity-optimizer` |
+| [`complexity-optimizer`](./skills/complexity-optimizer) | [`Kappaemme-git/codex-complexity-optimizer@main:complexity-optimizer`](https://github.com/Kappaemme-git/codex-complexity-optimizer/tree/main/complexity-optimizer) | `scripts/sync.sh complexity-optimizer` |
 
-Bulk update:
-
-```bash
-npx skills update   # updates only the 1 lock-tracked skill
-```
-
-## Manually synced (1)
-
-`EpicenterHQ/epicenter` exposes this directory outside the public skills CLI
-enumeration. It remains an unmodified upstream copy.
-
-| Local skill | Upstream path | One-shot refresh |
-| --- | --- | --- |
-| [`better-auth-security`](./skills/better-auth-security) | `EpicenterHQ/epicenter@.agents/skills/better-auth-security-best-practices/SKILL.md` | `scripts/sync-local.sh better-auth-security` |
-
-## Mosoo-maintained (18)
+## Mosoo-maintained (19)
 
 This repository is the canonical home for these skills. Edit them directly and
-commit the result. Do not add adaptations to `skills-lock.json` or
-`scripts/sync-local.sh` unless they return to unmodified upstream behavior.
+commit the result. Do not add adaptations to `scripts/sync.sh` unless they
+return to unmodified upstream behavior.
 
 Original skills with no public upstream:
 
@@ -49,6 +32,7 @@ Mosoo-maintained adaptations with upstream provenance:
 - [`better-auth-best-practices`](./skills/better-auth-best-practices) — adapted from [`EpicenterHQ/epicenter`](https://github.com/EpicenterHQ/epicenter/tree/main/.agents/skills/better-auth-best-practices)
 - [`better-auth-create-auth`](./skills/better-auth-create-auth) — adapted from the former [`EpicenterHQ/epicenter@.agents/skills/create-auth-skill`](https://github.com/EpicenterHQ/epicenter/tree/450f4888546e7eb2b4cecf29975b918c9f4ab31a/.agents/skills/create-auth-skill) path after its upstream removal
 - [`better-auth-email-and-password`](./skills/better-auth-email-and-password) — retained from the former [`EpicenterHQ/epicenter@.agents/skills/email-and-password-best-practices`](https://github.com/EpicenterHQ/epicenter/tree/450f4888546e7eb2b4cecf29975b918c9f4ab31a/.agents/skills/email-and-password-best-practices) path after its upstream removal
+- [`better-auth-security`](./skills/better-auth-security) — adapted from [`EpicenterHQ/epicenter`](https://github.com/EpicenterHQ/epicenter/tree/main/.agents/skills/better-auth-security-best-practices) with project-first tooling and dependency guardrails
 - [`building-ai-agent-on-cloudflare`](./skills/building-ai-agent-on-cloudflare) — adapted from `cloudflare/skills@54ca4fd:skills/building-ai-agent-on-cloudflare`
 - [`building-mcp-server-on-cloudflare`](./skills/building-mcp-server-on-cloudflare) — adapted from `cloudflare/skills@54ca4fd:skills/building-mcp-server-on-cloudflare`
 - [`cloudflare`](./skills/cloudflare) — adapted from [`cloudflare/skills`](https://github.com/cloudflare/skills/tree/main/skills/cloudflare)
@@ -66,10 +50,10 @@ All adaptations preserve active repository rules, existing configuration
 formats, pinned dependencies, and wrapper commands before applying generic
 upstream examples. Skill-specific provenance details remain in Git history.
 
-## How `scripts/sync-local.sh` works
+## How `scripts/sync.sh` works
 
 The script holds a one-entry mapping
 (`<local-name>|<owner/repo>|<ref>|<upstream-path>`) and fetches the unmodified
-skill. It resolves its destination from the script location, so an absolute
+copy. It resolves the destination from the script location, so an absolute
 invocation is safe from any CWD. It writes nothing outside the listed skill
 directory.
