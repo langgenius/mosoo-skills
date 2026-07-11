@@ -8,26 +8,13 @@ metadata:
 
 # Create Auth Skill
 
-## Project-first guardrail
-
-For an existing repository, read its active `AGENTS.md` and `CONTRIBUTING.md`,
-inspect pinned packages, the lockfile, schema ownership, and `just --list`.
-Those sources override this skill. In Mosoo, do not install or fetch `@latest`
-packages and do not run Better Auth CLI migration/generation, Prisma migration,
-or Drizzle push commands. Change the canonical schema, then use
-`just db-generate <name>`, review every generated file plus
-`git diff -- pkgs/db/drizzle`, and run relevant API tests. Use
-`just db-reset-local` to prove the full chain from fresh local state and
-`just db-migrate` to apply pending migrations to existing local state. Generic
-install and migration commands below are greenfield fallbacks only.
-
 ## Reference Repositories
 
 - [Better Auth](https://github.com/better-auth/better-auth) — TypeScript authentication framework with plugins
 
 ## Upstream Grounding
 
-When Better Auth API signatures, framework handlers, adapter setup, generated schema, plugin options, session behavior, or security defaults affect correctness, use DeepWiki against `better-auth/better-auth` if that capability is already available. Treat it as orientation, then verify decisive details against local installed types, source, or official docs before changing code.
+When Better Auth API signatures, framework handlers, adapter setup, generated schema, plugin options, session behavior, or security defaults affect correctness, ask DeepWiki a narrow question against `better-auth/better-auth` before relying on memory. Use it to orient, then verify decisive details against local installed types, source, or official docs before changing code.
 
 Skip DeepWiki for stable planning steps and repo-local conventions already documented below.
 
@@ -47,10 +34,9 @@ Use this pattern when you need to:
 
 ---
 
-## Planning for ambiguous or greenfield requests
+## Phase 1: Planning (REQUIRED before implementation)
 
-Scan the project before implementation. Ask structured questions only for
-material product choices that remain unresolved after that scan.
+Before writing any code, gather requirements by scanning the project and asking the user structured questions. This ensures the implementation matches their needs.
 
 ### Step 1: Scan the project
 
@@ -64,10 +50,7 @@ Use what you find to pre-fill defaults and skip questions you can already answer
 
 ### Step 2: Ask planning questions
 
-When user input is genuinely required, use the current session's available
-user-input mechanism to ask the applicable questions together. Do not assume a
-tool name or pause for answers already established by the repository. Group
-the questions under a title such as "Auth Setup Planning".
+Use the `AskQuestion` tool to ask the user **all applicable questions in a single call**. Skip any question you already have a confident answer for from the scan. Group them under a title like "Auth Setup Planning".
 
 **Questions to ask:**
 
@@ -83,30 +66,30 @@ the questions under a title such as "Auth Setup Planning".
    - Prompt: "Which database setup will you use?"
    - Options: PostgreSQL (Prisma) | PostgreSQL (Drizzle) | PostgreSQL (pg driver) | MySQL (Prisma) | MySQL (Drizzle) | MySQL (mysql2 driver) | SQLite (Prisma) | SQLite (Drizzle) | SQLite (better-sqlite3 driver) | MongoDB (Mongoose) | MongoDB (native driver)
 
-4. **Authentication methods** (ask only if unresolved; allow multiple)
+4. **Authentication methods** (always ask, allow multiple)
    - Prompt: "Which sign-in methods do you need?"
    - Options: Email & password | Social OAuth (Google, GitHub, etc.) | Magic link (passwordless email) | Passkey (WebAuthn) | Phone number
    - `allow_multiple: true`
 
-5. **Social providers** (ask only if Social OAuth was selected and providers remain unresolved)
+5. **Social providers** (only if they selected Social OAuth above — ask in a follow-up call)
    - Prompt: "Which social providers do you need?"
    - Options: Google | GitHub | Apple | Microsoft | Discord | Twitter/X
    - `allow_multiple: true`
 
-6. **Email verification** (ask only if email/password was selected and the policy remains unresolved)
+6. **Email verification** (only if Email & password was selected above — ask in a follow-up call)
    - Prompt: "Do you want to require email verification?"
    - Options: Yes | No
 
-7. **Email provider** (ask only when email delivery is needed and the provider remains unresolved)
+7. **Email provider** (only if email verification is Yes, or if Password reset is selected in features — ask in a follow-up call)
    - Prompt: "How do you want to send emails?"
    - Options: Resend | Mock it for now (console.log)
 
-8. **Features & plugins** (ask only if unresolved; allow multiple)
+8. **Features & plugins** (always ask, allow multiple)
    - Prompt: "Which additional features do you need?"
    - Options: Two-factor authentication (2FA) | Organizations / teams | Admin dashboard | API bearer tokens | Password reset | None of these
    - `allow_multiple: true`
 
-9. **Auth pages** (ask only if unresolved; allow multiple and pre-select from existing requirements)
+9. **Auth pages** (always ask, allow multiple — pre-select based on earlier answers)
    - Prompt: "Which auth pages do you need?"
    - Options vary based on previous answers:
      - Always available: Sign in | Sign up
@@ -114,7 +97,7 @@ the questions under a title such as "Auth Setup Planning".
      - If email verification enabled: Email verification
    - `allow_multiple: true`
 
-10. **Auth UI style** (ask only if the repository does not establish it)
+10. **Auth UI style** (always ask)
    - Prompt: "What style do you want for the auth pages? Pick one or describe your own."
    - Options: Minimal & clean | Centered card with background | Split layout (form + hero image) | Floating / glassmorphism | Other (I'll describe)
 
@@ -144,15 +127,13 @@ After collecting answers, present a concise implementation plan as a markdown ch
 10. Create sign-in / sign-up pages
 ```
 
-If the plan still contains a material product choice, ask the user to confirm
-that choice. Otherwise, proceed without redundant confirmation.
+Ask the user to confirm the plan before proceeding to Phase 2.
 
 ---
 
 ## Phase 2: Implementation
 
-Proceed when material choices are resolved; do not require a confirmation that
-the repository or user request has already supplied.
+Only proceed here after the user confirms the plan from Phase 1.
 
 Follow the decision tree below, guided by the answers collected above.
 
@@ -192,8 +173,7 @@ At the end of implementation, guide users thoroughly on remaining next steps (e.
 
 ## Installation
 
-**Core (greenfield only):** add a reviewed, pinned `better-auth` version with
-the selected project package manager.
+**Core:** `bun add better-auth`
 
 **Scoped packages (as needed):**
 | Package | Use case |
@@ -273,16 +253,13 @@ Add OAuth secrets as needed: `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `GOOGLE
 
 ---
 
-## Greenfield database migrations
+## Database Migrations
 
-These are planning references only when no repository schema workflow exists.
-In an established repository, use its schema owner and migration recipes.
-
-| Adapter         | Approach |
-| --------------- | -------- |
-| Built-in Kysely | Use `@better-auth/cli@<reviewed-version> migrate` only when the adapter owns schema application |
-| Prisma          | Generate into the canonical Prisma schema, review the diff, then use the project's migration command |
-| Drizzle         | Generate into the canonical Drizzle schema, review the diff, then use the project's migration generator; do not push in an established repository |
+| Adapter | Command |
+|---------|---------|
+| Built-in Kysely | `bun x @better-auth/cli@latest migrate` (applies directly) |
+| Prisma | `bun x @better-auth/cli@latest generate --output prisma/schema.prisma` then `bun x prisma migrate dev` |
+| Drizzle | `bun x @better-auth/cli@latest generate --output src/db/auth-schema.ts` then `bun x drizzle-kit push` |
 
 **Re-run after adding plugins.**
 

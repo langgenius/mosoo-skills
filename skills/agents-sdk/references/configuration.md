@@ -1,13 +1,8 @@
 # Configuration
 
-> **Project-first:** Preserve the active repository's Wrangler format, pinned
-> packages, and wrapper commands. In Mosoo, edit `wrangler.toml` and use the
-> documented `just` recipe; JSONC and bare commands below are greenfield
-> representations only.
-
 Fetch https://developers.cloudflare.com/agents/api-reference/configuration/ for complete documentation.
 
-## Wrangler configuration shape
+## Wrangler Config (`wrangler.jsonc`)
 
 ```jsonc
 {
@@ -58,8 +53,11 @@ export default defineConfig({
 
 ## Type Generation
 
-Use the repository's type-generation recipe to generate typed bindings after
-changing the existing Wrangler configuration.
+```bash
+npx wrangler types
+```
+
+This generates `env.d.ts` with typed bindings. Regenerate after changing `wrangler.jsonc`.
 
 ## tsconfig
 

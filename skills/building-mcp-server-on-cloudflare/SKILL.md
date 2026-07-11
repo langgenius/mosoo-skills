@@ -13,26 +13,15 @@ description: |
 
 # Building MCP Servers on Cloudflare
 
-## Project-first guardrail
-
-For an existing repository, read its active `AGENTS.md` and `CONTRIBUTING.md`,
-inspect its Wrangler format, pinned packages and lockfile, and run `just --list`
-when available. Those sources override this skill and linked references. In
-Mosoo, preserve `wrangler.toml`, do not install or upgrade global/project
-packages, and use documented `just` recipes for setup, validation, D1
-migrations, and deployment instead of bare `wrangler`, `npm`, or `npx`. Never
-apply remote D1 migrations from a generic troubleshooting snippet. The
-scaffold and raw deployment commands below are greenfield fallbacks only.
-
 Your knowledge of the MCP SDK and Cloudflare Workers integration may be outdated. **Prefer retrieval over pre-training** for any MCP server task.
 
 ## Retrieval Sources
 
-| Source       | How to retrieve                                             | Use for                                  |
-| ------------ | ----------------------------------------------------------- | ---------------------------------------- |
-| MCP docs     | `https://developers.cloudflare.com/agents/mcp/`             | Server setup, auth, deployment           |
-| MCP spec     | `https://modelcontextprotocol.io/`                          | Protocol spec, tool/resource definitions |
-| Workers docs | Search tool or `https://developers.cloudflare.com/workers/` | Runtime APIs, bindings, config           |
+| Source | How to retrieve | Use for |
+|--------|----------------|---------|
+| MCP docs | `https://developers.cloudflare.com/agents/mcp/` | Server setup, auth, deployment |
+| MCP spec | `https://modelcontextprotocol.io/` | Protocol spec, tool/resource definitions |
+| Workers docs | Search tool or `https://developers.cloudflare.com/workers/` | Runtime APIs, bindings, config |
 
 ## When to Use
 
@@ -45,9 +34,9 @@ Your knowledge of the MCP SDK and Cloudflare Workers integration may be outdated
 
 - Cloudflare account with Workers enabled
 - Node.js 18+ and npm/pnpm/yarn
-- A repository-pinned Wrangler command, or a reviewed CLI version for a new standalone project
+- Wrangler CLI (`npm install -g wrangler`)
 
-## Greenfield Quick Start
+## Quick Start
 
 ### Option 1: Public Server (No Auth)
 
@@ -85,18 +74,26 @@ export class MyMCP extends McpAgent {
 
   async init() {
     // Simple tool with parameters
-    this.server.tool("add", { a: z.number(), b: z.number() }, async ({ a, b }) => ({
-      content: [{ type: "text", text: String(a + b) }],
-    }));
+    this.server.tool(
+      "add",
+      { a: z.number(), b: z.number() },
+      async ({ a, b }) => ({
+        content: [{ type: "text", text: String(a + b) }],
+      })
+    );
 
     // Tool that calls external API
-    this.server.tool("get_weather", { city: z.string() }, async ({ city }) => {
-      const response = await fetch(`https://api.weather.com/${city}`);
-      const data = await response.json();
-      return {
-        content: [{ type: "text", text: JSON.stringify(data) }],
-      };
-    });
+    this.server.tool(
+      "get_weather",
+      { city: z.string() },
+      async ({ city }) => {
+        const response = await fetch(`https://api.weather.com/${city}`);
+        const data = await response.json();
+        return {
+          content: [{ type: "text", text: JSON.stringify(data) }],
+        };
+      }
+    );
   }
 }
 ```
@@ -135,9 +132,6 @@ npx @modelcontextprotocol/inspector@latest
 ```
 
 ### Step 4: Deploy
-
-In an existing repository, use its reviewed deployment recipe. The command
-below is only for a greenfield project without wrappers.
 
 ```bash
 npx wrangler deploy
@@ -192,7 +186,7 @@ this.server.tool(
   },
   async (params) => {
     // params are fully typed and validated
-  },
+  }
 );
 ```
 
@@ -215,7 +209,6 @@ export class MyMCP extends McpAgent<Env> {
 For OAuth-protected servers, see [references/oauth-setup.md](references/oauth-setup.md).
 
 Supported providers:
-
 - GitHub
 - Google
 - Auth0
@@ -277,4 +270,5 @@ id = "xxx"
 
 - [references/examples.md](references/examples.md) — Official templates and production examples
 - [references/oauth-setup.md](references/oauth-setup.md) — OAuth provider configuration
+- [references/tool-patterns.md](references/tool-patterns.md) — Advanced tool examples
 - [references/troubleshooting.md](references/troubleshooting.md) — Error codes and fixes

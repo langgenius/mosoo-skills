@@ -1,6 +1,12 @@
 ---
 name: cloudflare
 description: Comprehensive Cloudflare platform skill covering Workers, Pages, storage (KV, D1, R2), AI (Workers AI, Vectorize, Agents SDK), feature flags (Flagship), networking (Tunnel, Spectrum), security (WAF, DDoS), and infrastructure-as-code (Terraform, Pulumi). Use for any Cloudflare development task. Biases towards retrieval from Cloudflare docs over pre-trained knowledge.
+references:
+  - workers
+  - pages
+  - d1
+  - durable-objects
+  - workers-ai
 ---
 
 # Cloudflare Platform Skill
@@ -21,24 +27,6 @@ Fetch the **latest** information before citing specific numbers, API signatures,
 | Product changelogs | `https://developers.cloudflare.com/changelog/` | Recent changes to limits, features, deprecations |
 
 When a reference file and the docs disagree, **trust the docs**. This is especially important for: numeric limits, pricing tiers, type signatures, and configuration options.
-
-## Project-first guardrail
-
-For an existing repository, read its active `AGENTS.md` and `CONTRIBUTING.md`,
-inspect its existing Wrangler format, pinned packages and lockfile, and run
-`just --list` when available. Those sources override this skill and all
-references. In Mosoo, preserve `wrangler.toml`, do not install or upgrade
-packages, and use documented `just` recipes instead of bare `wrangler`, `npm`,
-`npx`, or `tsc`. Generic config and command examples are greenfield fallbacks.
-
-For Sandbox work, derive the container image tag from the repository's
-installed `@cloudflare/sandbox` package, existing Dockerfile, and current
-official docs; package and image versions must match.
-
-In Mosoo, production D1 is never reset, deleted, recreated, or restored by a
-generic example. Applied migrations are append-only. Use the active
-repository's documented migration and release workflow; remote or destructive
-D1 snippets in references are informational and never authorize execution.
 
 ## Quick Decision Trees
 

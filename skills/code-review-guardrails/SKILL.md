@@ -45,10 +45,12 @@ Look for parallel truth sources or manual edits to generated output.
 - Cross-boundary payloads belong in an existing `pkgs/contracts` surface only
   when they truly cross application or package boundaries.
 
-For GraphQL, fix the source and regenerate. For D1 schema changes, update the
-schema and append one named migration with `just db-generate <name>`, then
-review every generated file plus `git diff -- pkgs/db/drizzle`. Never modify,
-delete, rename, or regenerate an existing migration or snapshot to hide drift.
+For GraphQL, fix the source and regenerate. For D1 schema changes, follow the
+active repository's append-only migration rules and inspect `just --list`
+before naming a command. Mosoo currently exposes no safe incremental migration
+generator recipe; do not invent one, and do not use the destructive baseline
+regeneration recipe to evolve an established chain. Require a new reviewed
+migration and report the tooling gap when no safe generator exists.
 
 ### D1 migration safety
 
@@ -171,10 +173,11 @@ New I/O and failure paths need evidence that operators can understand them.
   - TypeScript: `just tc-package <package>`
   - tests: `just test-package <package>` or `just test-file <path>`
   - GraphQL changes: `just graphql-codegen`
-  - D1 schema changes: `just db-generate <name>`, review every generated file
-    plus `git diff -- pkgs/db/drizzle`, and run relevant API tests; use
-    `just db-reset-local` to prove the full chain against fresh local state and
-    `just db-migrate` to apply pending migrations to existing local state
+  - D1 schema changes: follow the active append-only instructions, review the
+    new migration plus `git diff -- pkgs/db/drizzle`, run relevant API tests,
+    use `just db-migrate` against existing local state, and use
+    `just db-reset-local` only for disposable local state; report that no safe
+    incremental generator recipe exists instead of inventing one
   - broad or cross-boundary changes: `just check`
 
 Do not claim performance, availability, or runtime health without measurements,

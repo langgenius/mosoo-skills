@@ -1,9 +1,5 @@
 # Agent Troubleshooting
 
-> **Project-first:** Preserve active repository configuration, pinned
-> dependencies, and wrapper commands. In Mosoo, use reviewed `just` recipes for
-> runtime checks and deploys; raw commands below are greenfield fallbacks.
-
 Common issues and solutions for Cloudflare Agents.
 
 ## Connection Issues
@@ -15,14 +11,12 @@ Common issues and solutions for Cloudflare Agents.
 **Causes & Solutions:**
 
 1. **Worker not deployed**
-
    ```bash
    wrangler deployments list
    wrangler deploy  # If not deployed
    ```
 
 2. **Wrong URL path**
-
    ```javascript
    // Ensure your routing handles the agent path
    // Client:
@@ -41,13 +35,11 @@ Common issues and solutions for Cloudflare Agents.
 ### "Connection closed unexpectedly"
 
 1. **Agent threw an error**
-
    ```bash
    wrangler tail  # Check for exceptions
    ```
 
 2. **Message handler crashed**
-
    ```typescript
    async onMessage(connection: Connection, message: string) {
      try {
@@ -69,7 +61,6 @@ Common issues and solutions for Cloudflare Agents.
 **Causes:**
 
 1. **Didn't call `setState()`**
-
    ```typescript
    // Wrong - direct mutation doesn't persist
    this.state.messages.push(newMessage);
@@ -92,7 +83,6 @@ Common issues and solutions for Cloudflare Agents.
 `setState()` automatically syncs to all connected clients via `onStateUpdate()`. If sync isn't working:
 
 1. **Check `onStateUpdate` is implemented**
-
    ```typescript
    onStateUpdate(state: State, source: string) {
      // This fires when state changes from any source
@@ -101,7 +91,6 @@ Common issues and solutions for Cloudflare Agents.
    ```
 
 2. **Client not listening for state updates**
-
    ```typescript
    // React hook handles this automatically
    const { state } = useAgent({ agent: "my-agent", name: id });
@@ -122,13 +111,13 @@ State is serialized as JSON. Keep it small:
 ```typescript
 // Bad - storing everything in state
 interface State {
-  allMessages: Message[]; // Could be thousands
+  allMessages: Message[];  // Could be thousands
   allDocuments: Document[];
 }
 
 // Good - state for hot data, SQL for cold
 interface State {
-  recentMessages: Message[]; // Last 50 only
+  recentMessages: Message[];  // Last 50 only
   currentDocument: Document | null;
 }
 
@@ -173,7 +162,6 @@ await this.sql`SELECT * FROM users WHERE id = ${userId}`;
 3. **Query conditions don't match**
 
 Debug:
-
 ```typescript
 const tables = await this.sql`
   SELECT name FROM sqlite_master WHERE type='table'
@@ -189,7 +177,6 @@ console.log("Message count:", count);
 ### "Task never fires"
 
 1. **Method name mismatch**
-
    ```typescript
    // Schedule references method that must exist
    await this.schedule(60, "sendReminder", { ... });
@@ -201,13 +188,12 @@ console.log("Message count:", count);
    ```
 
 2. **Cron syntax error**
-
    ```typescript
    // Invalid cron
-   await this.schedule("every 5 minutes", "task", {}); // Wrong
+   await this.schedule("every 5 minutes", "task", {});  // Wrong
 
    // Valid cron
-   await this.schedule("*/5 * * * *", "task", {}); // Every 5 minutes
+   await this.schedule("*/5 * * * *", "task", {});  // Every 5 minutes
    ```
 
 3. **Task was cancelled**
@@ -253,9 +239,9 @@ Check `wrangler.jsonc`:
 ```jsonc
 {
   "durable_objects": {
-    "bindings": [{ "name": "MyAgent", "class_name": "MyAgent" }],
+    "bindings": [{ "name": "MyAgent", "class_name": "MyAgent" }]
   },
-  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["MyAgent"] }],
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["MyAgent"] }]
 }
 ```
 
@@ -267,8 +253,8 @@ When adding new Durable Object classes:
 {
   "migrations": [
     { "tag": "v1", "new_sqlite_classes": ["MyAgent"] },
-    { "tag": "v2", "new_sqlite_classes": ["NewAgentClass"] },
-  ],
+    { "tag": "v2", "new_sqlite_classes": ["NewAgentClass"] }
+  ]
 }
 ```
 
@@ -280,7 +266,7 @@ Add to `wrangler.jsonc`:
 
 ```jsonc
 {
-  "ai": { "binding": "AI" },
+  "ai": { "binding": "AI" }
 }
 ```
 
@@ -345,7 +331,6 @@ export class MyAgent extends Agent<Env, State> {
 ```
 
 View logs:
-
 ```bash
 wrangler tail --format pretty
 ```

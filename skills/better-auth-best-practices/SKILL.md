@@ -8,25 +8,13 @@ metadata:
 
 # Better Auth Integration Guide
 
-## Project-first guardrail
-
-For an existing repository, read its active `AGENTS.md` and `CONTRIBUTING.md`,
-inspect pinned packages, the lockfile, schema ownership, and `just --list`.
-Those sources override this skill. In Mosoo, do not install or fetch `@latest`
-packages and do not run Better Auth CLI migration/generation or Drizzle push
-commands. Change the canonical schema, then use `just db-generate <name>`,
-review every generated file plus `git diff -- pkgs/db/drizzle`, and run
-relevant API tests. Use `just db-reset-local` to prove the full chain from
-fresh local state and `just db-migrate` to apply pending migrations to existing
-local state. Generic CLI commands below are greenfield fallbacks only.
-
 ## Reference Repositories
 
 - [Better Auth](https://github.com/better-auth/better-auth) — TypeScript authentication framework with plugins
 
 ## Upstream Grounding
 
-When Better Auth API signatures, adapter behavior, generated schema, plugin options, session storage, cookie behavior, or security defaults affect correctness, use DeepWiki against `better-auth/better-auth` if that capability is already available. Treat it as orientation, then verify decisive details against local installed types, source, or official docs before changing code.
+When Better Auth API signatures, adapter behavior, generated schema, plugin options, session storage, cookie behavior, or security defaults affect correctness, ask DeepWiki a narrow question against `better-auth/better-auth` before relying on memory. Use it to orient, then verify decisive details against local installed types, source, or official docs before changing code.
 
 Skip DeepWiki for stable setup basics already documented below.
 
@@ -46,15 +34,12 @@ Use this pattern when you need to:
 
 ## Setup Workflow
 
-For an established repository, map these steps to its pinned package manager,
-schema owner, and wrapper commands. For a greenfield project only:
-
-1. Add a reviewed, pinned `better-auth` version.
+1. Install: `bun add better-auth`
 2. Set env vars: `BETTER_AUTH_SECRET` and `BETTER_AUTH_URL`
 3. Create `auth.ts` with database + config
 4. Create route handler for your framework
-5. If no schema workflow exists, run the reviewed Better Auth CLI version
-6. Verify the configured sign-up, sign-in, and session flows
+5. Run `bun x @better-auth/cli@latest migrate`
+6. Verify: call `GET /api/auth/ok` — should return `{ status: "ok" }`
 
 ---
 
@@ -69,12 +54,12 @@ Only define `baseURL`/`secret` in config if env vars are NOT set.
 ### File Location
 CLI looks for `auth.ts` in: `./`, `./lib`, `./utils`, or under `./src`. Use `--config` for custom path.
 
-### CLI commands for projects without an established schema workflow
+### CLI Commands
+- `bun x @better-auth/cli@latest migrate` - Apply schema (built-in adapter)
+- `bun x @better-auth/cli@latest generate` - Generate schema for Prisma/Drizzle
+- `bun x @better-auth/cli@latest mcp --cursor` - Add MCP to AI tools
 
-- `npx @better-auth/cli@<reviewed-version> migrate` - Apply schema (built-in adapter)
-- `npx @better-auth/cli@<reviewed-version> generate` - Generate schema for Prisma/Drizzle
-
-Do not run these in Mosoo; follow the project-first workflow above.
+**Re-run after adding/changing plugins.**
 
 ---
 
@@ -144,7 +129,7 @@ Do not run these in Mosoo; follow the project-first workflow above.
 **In `advanced`:**
 - `useSecureCookies` - Force HTTPS cookies
 - `disableCSRFCheck` - ⚠️ Security risk
-- `disableOriginCheck` - ⚠️ Security risk
+- `disableOriginCheck` - ⚠️ Security risk  
 - `crossSubDomainCookies.enabled` - Share cookies across subdomains
 - `ipAddress.ipAddressHeaders` - Custom IP headers for proxies
 - `database.generateId` - Custom ID generation or `"serial"`/`"uuid"`/`false`

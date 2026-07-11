@@ -1,10 +1,5 @@
 # Running Playwright Tests
 
-> Project-first: use the active repository's documented test recipe and pinned
-> Playwright package. In Mosoo, discover the applicable `just`, `bun`, or `vp`
-> command from `AGENTS.md`, `CONTRIBUTING.md`, and `just --list`; do not replace
-> it with the generic `npx` examples below or initialize/install Playwright.
-
 To run Playwright tests, use the `npx playwright test` command, or a package manager script. To avoid opening the interactive html report, use `PLAYWRIGHT_HTML_OPEN=never` environment variable.
 
 ```bash

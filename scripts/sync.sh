@@ -1,20 +1,41 @@
 #!/usr/bin/env bash
-# scripts/sync.sh — refresh the unmodified public-upstream copy in mosoo-skills.
+# scripts/sync.sh — refresh unmodified public-upstream copies in mosoo-skills.
 #
 # Usage:
-#   scripts/sync.sh                   # refresh the upstream copy
+#   scripts/sync.sh                   # refresh all 16 upstream copies
 #   scripts/sync.sh <skill-name>      # refresh one
 #
-# After the run, review `git diff -- skills/<name>/` from the repository root,
-# or use `git -C /absolute/path/to/mosoo-skills diff -- skills/<name>/` from any
-# other directory. Mosoo-maintained adaptations intentionally stay out of this
-# manifest so a refresh cannot erase their project-first guardrails.
+# The four Mosoo-maintained skills (code-review-guardrails,
+# typescript-style-guardrails, no-use-effect, and sandbox-sdk) intentionally stay
+# out of this manifest so a refresh cannot erase project-specific guardrails.
 
 set -euo pipefail
 
 # Each entry: <local-skill-dir>|<upstream-repo>|<upstream-ref>|<upstream-path>
 SOURCES=(
+  # cloudflare/skills — tracks main
+  "agents-sdk|cloudflare/skills|main|skills/agents-sdk"
+  "cloudflare|cloudflare/skills|main|skills/cloudflare"
+  "cloudflare-email-service|cloudflare/skills|main|skills/cloudflare-email-service"
+  "durable-objects|cloudflare/skills|main|skills/durable-objects"
+  "web-perf|cloudflare/skills|main|skills/web-perf"
+  "workers-best-practices|cloudflare/skills|main|skills/workers-best-practices"
+  "wrangler|cloudflare/skills|main|skills/wrangler"
+
+  # cloudflare/skills @ 54ca4fd — retained from the last upstream SKILL.md form
+  "building-ai-agent-on-cloudflare|cloudflare/skills|54ca4fd800e69906355da5010c03499017ddc3b1|skills/building-ai-agent-on-cloudflare"
+  "building-mcp-server-on-cloudflare|cloudflare/skills|54ca4fd800e69906355da5010c03499017ddc3b1|skills/building-mcp-server-on-cloudflare"
+
+  # Single-skill upstreams. no-use-effect is Mosoo-maintained and excluded.
+  "playwright-cli|microsoft/playwright-cli|main|skills/playwright-cli"
+  "typescript-expert|davila7/claude-code-templates|main|cli-tool/components/skills/development/typescript-expert"
   "complexity-optimizer|Kappaemme-git/codex-complexity-optimizer|main|complexity-optimizer"
+
+  # EpicenterHQ/epicenter
+  "better-auth-best-practices|EpicenterHQ/epicenter|main|.agents/skills/better-auth-best-practices"
+  "better-auth-security|EpicenterHQ/epicenter|main|.agents/skills/better-auth-security-best-practices"
+  "better-auth-create-auth|EpicenterHQ/epicenter|main|.agents/skills/create-auth-skill"
+  "better-auth-email-and-password|EpicenterHQ/epicenter|main|.agents/skills/email-and-password-best-practices"
 )
 
 repo_root="$(cd "$(dirname "$0")/.." && pwd)"

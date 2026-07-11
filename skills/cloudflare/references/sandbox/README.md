@@ -2,11 +2,6 @@
 
 Secure isolated code execution in containers on Cloudflare's edge. Run untrusted code, manage files, expose services, integrate with AI agents.
 
-Preserve an existing Wrangler TOML, JSON, or JSONC configuration. In every
-Dockerfile example below, replace `<version>` with the installed
-`@cloudflare/sandbox` package version after checking the repository and current
-official docs; the package and image versions must match.
-
 **Use cases**: AI code execution, interactive dev environments, data analysis, CI/CD, code interpreters, multi-tenant execution.
 
 ## Architecture
@@ -37,8 +32,7 @@ export default {
 };
 ```
 
-**New JSONC-based project example** (merge equivalent fields into an existing
-Wrangler config instead of replacing it):
+**wrangler.jsonc**:
 ```jsonc
 {
   "name": "my-sandbox-worker",
@@ -65,7 +59,7 @@ Wrangler config instead of replacing it):
 
 **Dockerfile**:
 ```dockerfile
-FROM docker.io/cloudflare/sandbox:<version>
+FROM docker.io/cloudflare/sandbox:0.7.0
 RUN pip3 install --no-cache-dir pandas numpy matplotlib
 EXPOSE 8080 3000  # Required for wrangler dev
 ```

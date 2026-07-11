@@ -4,10 +4,11 @@ TypeScript Project Diagnostic Script
 Analyzes TypeScript projects for configuration, performance, and common issues.
 """
 
-import json
 import subprocess
+import sys
+import os
+import json
 from pathlib import Path
-
 
 def run_cmd(cmd: str) -> str:
     """Run shell command and return output."""
@@ -17,34 +18,12 @@ def run_cmd(cmd: str) -> str:
     except Exception as e:
         return str(e)
 
-
-def run_cmd_with_status(cmd: str) -> tuple[int, str]:
-    """Run a shell command and return its status plus combined output."""
-    try:
-        result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
-        return result.returncode, result.stdout + result.stderr
-    except Exception as error:
-        return 1, str(error)
-
-
-def has_justfile() -> bool:
-    """Return whether the repository exposes a Justfile command surface."""
-    return Path("justfile").exists() or Path("Justfile").exists()
-
-
-def local_tsc() -> str | None:
-    """Return the repository-pinned TypeScript binary when present."""
-    path = Path("node_modules/.bin/tsc")
-    return str(path) if path.exists() else None
-
-
 def check_versions():
     """Check TypeScript and Node versions."""
     print("\n📦 Versions:")
     print("-" * 40)
     
-    tsc = local_tsc()
-    ts_version = run_cmd(f"{tsc} --version 2>/dev/null").strip() if tsc else ""
+    ts_version = run_cmd("npx tsc --version 2>/dev/null").strip()
     node_version = run_cmd("node -v 2>/dev/null").strip()
     
     print(f"  TypeScript: {ts_version or 'Not found'}")
@@ -155,18 +134,10 @@ def check_type_errors():
     print("\n🔍 Type Check:")
     print("-" * 40)
     
-    if has_justfile():
-        status, result = run_cmd_with_status("just tc")
-    elif (tsc := local_tsc()) is not None:
-        status, result = run_cmd_with_status(f"{tsc} --noEmit")
-    else:
-        print("  ⚠️ No repository typecheck wrapper or pinned tsc binary found")
-        return
-
-    if status != 0:
+    result = run_cmd("npx tsc --noEmit 2>&1 | head -20")
+    if "error TS" in result:
         errors = result.count("error TS")
-        summary = f"{errors}+ type errors found" if errors else "typecheck command failed"
-        print(f"  ❌ {summary}")
+        print(f"  ❌ {errors}+ type errors found")
         print(result[:500])
     else:
         print("  ✅ No type errors")
@@ -203,16 +174,7 @@ def check_performance():
     print("\n⏱️ Type Check Performance:")
     print("-" * 40)
     
-    if has_justfile():
-        print("  ⚪ Skipped raw compiler flags; use the repository's documented performance workflow")
-        return
-
-    tsc = local_tsc()
-    if tsc is None:
-        print("  ⚠️ No repository-pinned tsc binary found")
-        return
-
-    result = run_cmd(f"{tsc} --extendedDiagnostics --noEmit 2>&1 | grep -E 'Check time|Files:|Lines:|Nodes:'")
+    result = run_cmd("npx tsc --extendedDiagnostics --noEmit 2>&1 | grep -E 'Check time|Files:|Lines:|Nodes:'")
     if result.strip():
         for line in result.strip().split('\n'):
             print(f"  {line}")

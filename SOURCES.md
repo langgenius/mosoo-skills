@@ -1,59 +1,81 @@
 # Skill sources
 
-All 20 skills, grouped by maintenance path. One is an unmodified public-upstream
-copy refreshed by `scripts/sync.sh`. The remaining 19 are Mosoo-maintained
-originals or adaptations.
+All 20 skills are divided by maintenance path. Sixteen are unmodified
+public-upstream copies refreshed by `scripts/sync.sh`; four are maintained in
+this repository.
 
-Run every relative command on this page from the `mosoo-skills` repository
-root. From another directory, invoke `scripts/sync.sh` by its absolute
-path and review with
-`git -C /absolute/path/to/mosoo-skills diff -- skills/<name>/`.
+```bash
+scripts/sync.sh                 # refresh all 16 upstream copies
+scripts/sync.sh <skill-name>    # refresh one
+```
 
-## Synced upstream copy (1)
+## Synced upstream copies (16)
 
-| Local skill | Upstream | Refresh |
-| --- | --- | --- |
-| [`complexity-optimizer`](./skills/complexity-optimizer) | [`Kappaemme-git/codex-complexity-optimizer@main:complexity-optimizer`](https://github.com/Kappaemme-git/codex-complexity-optimizer/tree/main/complexity-optimizer) | `scripts/sync.sh complexity-optimizer` |
+The authoritative machine manifest is the `SOURCES` array in
+[`scripts/sync.sh`](./scripts/sync.sh).
 
-## Mosoo-maintained (19)
+### Single-repository upstreams (3)
 
-This repository is the canonical home for these skills. Edit them directly and
-commit the result. Do not add adaptations to `scripts/sync.sh` unless they
-return to unmodified upstream behavior.
+| Local skill | Upstream |
+| --- | --- |
+| [`playwright-cli`](./skills/playwright-cli) | [`microsoft/playwright-cli@main:skills/playwright-cli`](https://github.com/microsoft/playwright-cli/tree/main/skills/playwright-cli) |
+| [`typescript-expert`](./skills/typescript-expert) | [`davila7/claude-code-templates@main:cli-tool/components/skills/development/typescript-expert`](https://github.com/davila7/claude-code-templates/tree/main/cli-tool/components/skills/development/typescript-expert) |
+| [`complexity-optimizer`](./skills/complexity-optimizer) | [`Kappaemme-git/codex-complexity-optimizer@main:complexity-optimizer`](https://github.com/Kappaemme-git/codex-complexity-optimizer/tree/main/complexity-optimizer) |
 
-Original skills with no public upstream:
+### `cloudflare/skills` tracking `main` (7)
 
-- [`code-review-guardrails`](./skills/code-review-guardrails) — Mosoo architecture, data, review, and verification guardrails
-- [`typescript-style-guardrails`](./skills/typescript-style-guardrails) — readability-first TypeScript/TSX guardrails
+[`agents-sdk`](./skills/agents-sdk),
+[`cloudflare`](./skills/cloudflare),
+[`cloudflare-email-service`](./skills/cloudflare-email-service),
+[`durable-objects`](./skills/durable-objects),
+[`web-perf`](./skills/web-perf),
+[`workers-best-practices`](./skills/workers-best-practices), and
+[`wrangler`](./skills/wrangler) track
+`cloudflare/skills@main:skills/<name>`.
 
-Mosoo-maintained adaptations with upstream provenance:
+### `cloudflare/skills` pinned snapshot (2)
 
-- [`agents-sdk`](./skills/agents-sdk) — adapted from [`cloudflare/skills`](https://github.com/cloudflare/skills/tree/main/skills/agents-sdk)
-- [`better-auth-best-practices`](./skills/better-auth-best-practices) — adapted from [`EpicenterHQ/epicenter`](https://github.com/EpicenterHQ/epicenter/tree/main/.agents/skills/better-auth-best-practices)
-- [`better-auth-create-auth`](./skills/better-auth-create-auth) — adapted from the former [`EpicenterHQ/epicenter@.agents/skills/create-auth-skill`](https://github.com/EpicenterHQ/epicenter/tree/450f4888546e7eb2b4cecf29975b918c9f4ab31a/.agents/skills/create-auth-skill) path after its upstream removal
-- [`better-auth-email-and-password`](./skills/better-auth-email-and-password) — retained from the former [`EpicenterHQ/epicenter@.agents/skills/email-and-password-best-practices`](https://github.com/EpicenterHQ/epicenter/tree/450f4888546e7eb2b4cecf29975b918c9f4ab31a/.agents/skills/email-and-password-best-practices) path after its upstream removal
-- [`better-auth-security`](./skills/better-auth-security) — adapted from [`EpicenterHQ/epicenter`](https://github.com/EpicenterHQ/epicenter/tree/main/.agents/skills/better-auth-security-best-practices) with project-first tooling and dependency guardrails
-- [`building-ai-agent-on-cloudflare`](./skills/building-ai-agent-on-cloudflare) — adapted from `cloudflare/skills@54ca4fd:skills/building-ai-agent-on-cloudflare`
-- [`building-mcp-server-on-cloudflare`](./skills/building-mcp-server-on-cloudflare) — adapted from `cloudflare/skills@54ca4fd:skills/building-mcp-server-on-cloudflare`
-- [`cloudflare`](./skills/cloudflare) — adapted from [`cloudflare/skills`](https://github.com/cloudflare/skills/tree/main/skills/cloudflare)
-- [`cloudflare-email-service`](./skills/cloudflare-email-service) — adapted from [`cloudflare/skills`](https://github.com/cloudflare/skills/tree/main/skills/cloudflare-email-service)
-- [`durable-objects`](./skills/durable-objects) — adapted from [`cloudflare/skills`](https://github.com/cloudflare/skills/tree/main/skills/durable-objects)
-- [`no-use-effect`](./skills/no-use-effect) — adapted from [`Factory-AI/factory-plugins`](https://github.com/Factory-AI/factory-plugins/tree/master/plugins/typescript/skills/no-use-effect)
-- [`playwright-cli`](./skills/playwright-cli) — adapted from [`microsoft/playwright-cli`](https://github.com/microsoft/playwright-cli/tree/main/skills/playwright-cli) with project-first test and installation guardrails
-- [`sandbox-sdk`](./skills/sandbox-sdk) — adapted from [`cloudflare/skills`](https://github.com/cloudflare/skills/tree/main/skills/sandbox-sdk)
-- [`typescript-expert`](./skills/typescript-expert) — adapted from [`davila7/claude-code-templates`](https://github.com/davila7/claude-code-templates/tree/main/cli-tool/components/skills/development/typescript-expert)
-- [`web-perf`](./skills/web-perf) — adapted from [`cloudflare/skills`](https://github.com/cloudflare/skills/tree/main/skills/web-perf) with project-first tooling and installation guardrails
-- [`workers-best-practices`](./skills/workers-best-practices) — adapted from [`cloudflare/skills`](https://github.com/cloudflare/skills/tree/main/skills/workers-best-practices)
-- [`wrangler`](./skills/wrangler) — adapted from [`cloudflare/skills`](https://github.com/cloudflare/skills/tree/main/skills/wrangler)
+These skills were removed upstream after `54ca4fd`, so their original
+`SKILL.md` form remains pinned:
 
-All adaptations preserve active repository rules, existing configuration
-formats, pinned dependencies, and wrapper commands before applying generic
-upstream examples. Skill-specific provenance details remain in Git history.
+- [`building-ai-agent-on-cloudflare`](./skills/building-ai-agent-on-cloudflare)
+- [`building-mcp-server-on-cloudflare`](./skills/building-mcp-server-on-cloudflare)
 
-## How `scripts/sync.sh` works
+Both use
+`cloudflare/skills@54ca4fd800e69906355da5010c03499017ddc3b1`.
 
-The script holds a one-entry mapping
-(`<local-name>|<owner/repo>|<ref>|<upstream-path>`) and fetches the unmodified
-copy. It resolves the destination from the script location, so an absolute
-invocation is safe from any CWD. It writes nothing outside the listed skill
-directory.
+### `EpicenterHQ/epicenter` tracking `main` (4)
+
+| Local skill | Upstream directory |
+| --- | --- |
+| [`better-auth-best-practices`](./skills/better-auth-best-practices) | `.agents/skills/better-auth-best-practices` |
+| [`better-auth-security`](./skills/better-auth-security) | `.agents/skills/better-auth-security-best-practices` |
+| [`better-auth-create-auth`](./skills/better-auth-create-auth) | `.agents/skills/create-auth-skill` |
+| [`better-auth-email-and-password`](./skills/better-auth-email-and-password) | `.agents/skills/email-and-password-best-practices` |
+
+## Mosoo-maintained (4)
+
+Edit these directly and do not add them to the sync manifest.
+
+Originals:
+
+- [`code-review-guardrails`](./skills/code-review-guardrails)
+- [`typescript-style-guardrails`](./skills/typescript-style-guardrails)
+
+Adaptations:
+
+- [`no-use-effect`](./skills/no-use-effect), adapted from
+  [`Factory-AI/factory-plugins`](https://github.com/Factory-AI/factory-plugins/tree/master/plugins/typescript/skills/no-use-effect)
+  to reflect Mosoo's real React/data-layer commands and allow direct effects for
+  external synchronization.
+- [`sandbox-sdk`](./skills/sandbox-sdk), adapted from
+  [`cloudflare/skills`](https://github.com/cloudflare/skills/tree/main/skills/sandbox-sdk)
+  to require repository evidence and current official documentation rather than
+  a fixed Wrangler format, image tag, or SDK version.
+
+## Sync behavior
+
+Each manifest entry is
+`<local-dir>|<owner/repo>|<ref>|<upstream-path>`. The script fetches that
+source and replaces only `skills/<local-dir>/`. A Mosoo-specific adaptation
+must remain outside the manifest so a refresh cannot overwrite its guardrails.

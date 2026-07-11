@@ -6,22 +6,13 @@ metadata:
   version: '1.0'
 ---
 
-## Project-first guardrail
-
-For an existing repository, read its active `AGENTS.md` and `CONTRIBUTING.md`,
-inspect pinned Better Auth packages, auth contracts, schema ownership, the
-lockfile, and `just --list` when available. Those sources override this skill.
-Do not install or upgrade dependencies, assume an unavailable research tool,
-or replace repository auth, test, typecheck, secret, or migration workflows
-with generic examples below.
-
 ## Reference Repositories
 
 - [Better Auth](https://github.com/better-auth/better-auth) — TypeScript authentication framework with plugins
 
 ## Upstream Grounding
 
-When Better Auth rate limiting, CSRF and origin checks, cookie settings, secret handling, token encryption, audit behavior, or deployment security defaults affect correctness, use DeepWiki against `better-auth/better-auth` if that capability is already available. Treat it as orientation, then verify decisive details against local installed types, source, or official docs before changing code.
+When Better Auth rate limiting, CSRF and origin checks, cookie settings, secret handling, token encryption, audit behavior, or deployment security defaults affect correctness, ask DeepWiki a narrow question against `better-auth/better-auth` before relying on memory. Use it to orient, then verify decisive details against local installed types, source, or official docs before changing code.
 
 Skip DeepWiki for stable security basics already documented below.
 
@@ -415,7 +406,7 @@ export const auth = betterAuth({
     "https://app.example.com",
     "https://*.preview.example.com",
   ],
-
+  
   // Rate limiting
   rateLimit: {
     enabled: true,
@@ -425,7 +416,7 @@ export const auth = betterAuth({
       "/api/auth/sign-up/email": { window: 60, max: 3 },
     },
   },
-
+  
   // Session security
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days
@@ -437,14 +428,14 @@ export const auth = betterAuth({
       strategy: "jwe", // Encrypted session data
     },
   },
-
+  
   // OAuth security
   account: {
     encryptOAuthTokens: true,
     storeStateStrategy: "cookie",
   },
-
-
+  
+  
   // Advanced settings
   advanced: {
     useSecureCookies: true,
@@ -460,7 +451,7 @@ export const auth = betterAuth({
       handler: (promise) => waitUntil(promise),
     },
   },
-
+  
   // Security auditing
   databaseHooks: {
     session: {

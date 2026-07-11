@@ -1,10 +1,5 @@
 # Spec-driven testing (plan → generate → heal)
 
-> Project-first: use the active repository's documented test recipe and pinned
-> browser tooling. In Mosoo, discover the applicable `just`, `bun`, or `vp`
-> command from `AGENTS.md`, `CONTRIBUTING.md`, and `just --list`; never run the
-> generic initialization, `npx`, or `@latest` examples below.
-
 End-to-end workflow for authoring and maintaining Playwright tests using `playwright-cli`. The three sections below can be used independently:
 
 - **Planning** — explore the app, produce a spec file describing what to test.

@@ -1,9 +1,5 @@
 # CLI, MCP, and Project Setup
 
-> **Project-first:** Use active repository wrappers, configuration format, and
-> pinned dependencies. In Mosoo, bare `npx wrangler` commands below are
-> reference syntax only and must not replace documented `just` recipes.
-
 Manage Cloudflare Email Service from the command line and coding agents.
 
 For full CLI reference, run `npx wrangler email --help`. For Dashboard setup, see the [getting started docs](https://developers.cloudflare.com/email-service/get-started/).

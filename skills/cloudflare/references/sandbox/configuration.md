@@ -30,20 +30,16 @@ wrangler.jsonc `instance_type`:
 
 ## Dockerfile Patterns
 
-Replace `<version>` with the repository's installed `@cloudflare/sandbox`
-package version after checking its Dockerfile and current official docs. Keep
-the package and image versions identical.
-
 **Basic**:
 ```dockerfile
-FROM docker.io/cloudflare/sandbox:<version>
+FROM docker.io/cloudflare/sandbox:0.7.0
 RUN pip3 install --no-cache-dir pandas numpy
 EXPOSE 8080  # Required for wrangler dev
 ```
 
 **Scientific**:
 ```dockerfile
-FROM docker.io/cloudflare/sandbox:<version>
+FROM docker.io/cloudflare/sandbox:0.7.0
 RUN pip3 install --no-cache-dir \
     jupyter-server ipykernel matplotlib \
     pandas seaborn plotly scipy scikit-learn
@@ -51,7 +47,7 @@ RUN pip3 install --no-cache-dir \
 
 **Node.js**:
 ```dockerfile
-FROM docker.io/cloudflare/sandbox:<version>
+FROM docker.io/cloudflare/sandbox:0.7.0
 RUN npm install -g typescript ts-node
 ```
 

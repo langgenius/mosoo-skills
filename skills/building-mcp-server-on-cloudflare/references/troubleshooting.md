@@ -1,10 +1,5 @@
 # MCP Server Troubleshooting
 
-> **Project-first:** Use the active repository's wrapper commands for deploys,
-> D1 migrations, dependency changes, and validation. In Mosoo, never apply a
-> remote migration or deploy from a raw command in this reference; use reviewed
-> `just` recipes and the production D1 safety contract.
-
 Common errors and solutions for MCP servers on Cloudflare.
 
 ## Connection Issues
@@ -16,7 +11,6 @@ Common errors and solutions for MCP servers on Cloudflare.
 **Causes & Solutions:**
 
 1. **Wrong URL path**
-
    ```
    # Wrong
    https://my-server.workers.dev/
@@ -26,7 +20,6 @@ Common errors and solutions for MCP servers on Cloudflare.
    ```
 
 2. **Worker not deployed**
-
    ```bash
    wrangler deployments list
    # If empty, deploy first:
@@ -159,7 +152,6 @@ OAuth token missing or expired.
 
 1. **Check client is handling OAuth flow**
 2. **Verify secrets are set:**
-
    ```bash
    wrangler secret list
    # Should show GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET
@@ -176,11 +168,9 @@ OAuth token missing or expired.
 OAuth callback URL doesn't match app configuration.
 
 **Local development:**
-
 - OAuth app callback: `http://localhost:8788/callback`
 
 **Production:**
-
 - OAuth app callback: `https://[worker-name].[account].workers.dev/callback`
 
 Must match EXACTLY (including trailing slash or lack thereof).
@@ -191,7 +181,6 @@ State parameter validation failed.
 
 1. **Clear browser cookies and retry**
 2. **Check KV is storing state:**
-
    ```typescript
    // In your auth handler
    console.log("Storing state:", state);
@@ -214,14 +203,19 @@ database_name = "mydb"
 database_id = "xxx-xxx"
 ```
 
-After adding bindings, use the repository's reviewed deployment recipe.
+After adding bindings: `wrangler deploy`
 
 ### "D1_ERROR: no such table"
 
 Migrations not applied.
 
-Use the repository's local migration recipe. Production migration application
-must go through its reviewed deploy path; never run a generic remote command.
+```bash
+# Local
+wrangler d1 migrations apply DB_NAME --local
+
+# Production
+wrangler d1 migrations apply DB_NAME
+```
 
 ### Durable Object Not Found
 
@@ -238,7 +232,7 @@ new_classes = ["MyMCP"]
 And class must be exported:
 
 ```typescript
-export { MyMCP }; // Don't forget this!
+export { MyMCP };  // Don't forget this!
 ```
 
 ## Deployment Errors
@@ -296,7 +290,6 @@ export class MyMCP extends McpAgent {
 ```
 
 View logs:
-
 ```bash
 wrangler tail --format pretty
 ```

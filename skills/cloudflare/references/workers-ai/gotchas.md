@@ -25,7 +25,7 @@ wrangler dev --remote
 ```
 
 ### "env.AI is undefined"
-Add the binding to the existing Wrangler config without changing its format:
+Add binding to wrangler.jsonc:
 ```jsonc
 { "ai": { "binding": "AI" } }
 ```

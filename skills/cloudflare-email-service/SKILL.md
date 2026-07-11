@@ -5,16 +5,6 @@ description: Send and receive transactional emails with Cloudflare Email Service
 
 # Cloudflare Email Service
 
-## Project-first guardrail
-
-For an existing repository, read its active `AGENTS.md` and `CONTRIBUTING.md`,
-inspect the existing Wrangler format, package manifests and lockfile, and run
-`just --list` when available. Those project sources override this skill and
-all linked references. In Mosoo, preserve `wrangler.toml`, keep pinned
-dependencies, and use documented `just` recipes instead of bare `wrangler`,
-`npm`, or `npx`. Do not create or migrate to JSONC merely because an example
-uses it. Generic setup commands below are greenfield fallbacks only.
-
 Your knowledge of the Cloudflare Email Service, Email Routing or Email Sending may be outdated. **Prefer retrieval over pre-training** for any Cloudflare Email Service task.
 
 Cloudflare Email Service lets you send transactional emails and route incoming emails, all within the Cloudflare platform. Your knowledge of this product may be outdated — it launched in 2025 and is evolving rapidly. **Prefer retrieval over pre-training** for any Email Service task.
@@ -34,9 +24,9 @@ Cloudflare Email Service lets you send transactional emails and route incoming e
 
 Before writing any email code, verify the basics are in place:
 
-1. **Domain onboarded?** Use the repository's Wrangler wrapper to list enabled domains. Enable a domain only through the documented project path, or see [cli-and-mcp.md](references/cli-and-mcp.md).
-2. **Binding configured?** Look for `send_email` in the existing Wrangler configuration.
-3. **postal-mime installed?** Inspect the active package manifest and lockfile (only needed for receiving/parsing emails); do not upgrade it implicitly.
+1. **Domain onboarded?** Run `npx wrangler email sending list` to see which domains have email sending enabled. If the domain isn't listed, run `npx wrangler email sending enable userdomain.com` or see [cli-and-mcp.md](references/cli-and-mcp.md) for full setup instructions.
+2. **Binding configured?** Look for `send_email` in `wrangler.jsonc` (for Workers)
+3. **postal-mime installed?** Run `npm ls postal-mime` (only needed for receiving/parsing emails)
 
 ## What Do You Need?
 
@@ -49,17 +39,15 @@ Start here. Find your situation, then follow the link for full details.
 | **Send emails from an external app or agent** (Node.js, Go, Python, etc.) | REST API with Bearer token | [rest-api.md](references/rest-api.md) |
 | **Send emails from a coding agent** (Claude Code, Cursor, Copilot, etc.) | MCP tools, wrangler CLI, or REST API | [cli-and-mcp.md](references/cli-and-mcp.md) |
 | **Receive and process incoming emails** (Email Routing) | Workers `email()` handler | [routing.md](references/routing.md) |
-| **Set up Email Sending or Email Routing** | Repository-approved setup recipe or Dashboard; direct Wrangler CLI only in an unwrapped project | [cli-and-mcp.md](references/cli-and-mcp.md) |
+| **Set up Email Sending or Email Routing** | `wrangler email sending enable` / `wrangler email routing enable`, or Dashboard | [cli-and-mcp.md](references/cli-and-mcp.md) |
 | **Improve deliverability, avoid spam folders** | Authentication, content, compliance | [deliverability.md](references/deliverability.md) |
 
 ## Quick Start — Workers Binding
 
-Merge the binding into the existing Wrangler configuration without changing
-its format, then call `env.EMAIL.send()`. Onboard the `from` domain through the
-repository's documented Wrangler path.
+Add the binding to `wrangler.jsonc`, then call `env.EMAIL.send()`. The `from` domain must be onboarded via `npx wrangler email sending enable yourdomain.com`.
 
 ```jsonc
-// JSONC shape for greenfield projects; express the same binding in existing TOML when present.
+// wrangler.jsonc
 { "send_email": [{ "name": "EMAIL" }] }
 ```
 
@@ -92,12 +80,12 @@ See [rest-api.md](references/rest-api.md) for curl examples, response format, an
 
 | Mistake | Why It Happens | Fix |
 |---------|---------------|-----|
-| Forgetting `send_email` binding in wrangler config | Email Service uses a binding, not an API key | Add the equivalent `send_email` binding without changing the existing config format |
-| Sending from an unverified domain | Domain must be onboarded onto Email Sending before first send | Use the repository-approved onboarding flow or Dashboard |
+| Forgetting `send_email` binding in wrangler config | Email Service uses a binding, not an API key | Add `"send_email": [{ "name": "EMAIL" }]` to wrangler.jsonc |
+| Sending from an unverified domain | Domain must be onboarded onto Email Sending before first send | Run `wrangler email sending enable yourdomain.com` or onboard in Dashboard |
 | Reading `message.raw` twice in email handler | The raw stream is single-use — second read returns empty | Buffer first: `const raw = await new Response(message.raw).arrayBuffer()` |
 | Missing `text` field (HTML only) | Some email clients only show plain text; also helps spam scores | Always include both `html` and `text` versions |
 | Using email for marketing/bulk sends | Email Service is for transactional email only | Use a dedicated marketing email platform for newsletters and campaigns |
-| Forwarding to unverified destinations | `message.forward()` only works with verified addresses | Use the repository-approved verification flow or Dashboard |
+| Forwarding to unverified destinations | `message.forward()` only works with verified addresses | Run `wrangler email routing addresses create user@gmail.com` or add in Dashboard |
 | Testing with fake addresses | Bounces from non-existent addresses hurt sender reputation | Use real addresses you control during development |
 | Hardcoding API tokens in source code | Tokens in code get committed and leaked | Use environment variables or Cloudflare secrets |
 | Ignoring the `from` domain requirement | The `from` address must use a domain onboarded to Email Service | Verify the domain first, then send from `anything@that-domain.com` |

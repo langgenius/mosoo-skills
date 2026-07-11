@@ -76,7 +76,7 @@ Bindings are how Workers access Cloudflare resources (storage, compute, services
 
 ## Quick Start
 
-1. **Add the binding to the existing Wrangler config without changing its format:**
+1. **Add binding to wrangler.jsonc:**
 ```jsonc
 {
   "kv_namespaces": [
