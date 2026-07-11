@@ -1,41 +1,50 @@
 # Skill sources
 
-20 skills total. 18 sync from public upstreams via `scripts/sync.sh`; the remaining 2 are mosoo originals — this repo is their canonical home.
+All 20 skills are divided by maintenance path. Sixteen are unmodified
+public-upstream copies refreshed by `scripts/sync.sh`; four are maintained in
+this repository.
 
 ```bash
-scripts/sync.sh                   # refresh all 18 upstream-sourced skills
-scripts/sync.sh <skill-name>      # refresh one
+scripts/sync.sh                 # refresh all 16 upstream copies
+scripts/sync.sh <skill-name>    # refresh one
 ```
 
-A GitHub Action runs the same script every Monday and opens a PR for any drift — see [§ Weekly auto-sync](./README.md#weekly-auto-sync) in the README.
+## Synced upstream copies (16)
 
-## Upstream manifest
+The authoritative machine manifest is the `SOURCES` array in
+[`scripts/sync.sh`](./scripts/sync.sh).
 
-The authoritative manifest lives in [`scripts/sync.sh`](./scripts/sync.sh) (`SOURCES` array). This table is for human reference.
-
-### Single-repo upstreams
+### Single-repository upstreams (3)
 
 | Local skill | Upstream |
 | --- | --- |
 | [`playwright-cli`](./skills/playwright-cli) | [`microsoft/playwright-cli@main:skills/playwright-cli`](https://github.com/microsoft/playwright-cli/tree/main/skills/playwright-cli) |
-| [`no-use-effect`](./skills/no-use-effect) | [`Factory-AI/factory-plugins@master:plugins/typescript/skills/no-use-effect`](https://github.com/Factory-AI/factory-plugins/tree/master/plugins/typescript/skills/no-use-effect) |
 | [`typescript-expert`](./skills/typescript-expert) | [`davila7/claude-code-templates@main:cli-tool/components/skills/development/typescript-expert`](https://github.com/davila7/claude-code-templates/tree/main/cli-tool/components/skills/development/typescript-expert) |
 | [`complexity-optimizer`](./skills/complexity-optimizer) | [`Kappaemme-git/codex-complexity-optimizer@main:complexity-optimizer`](https://github.com/Kappaemme-git/codex-complexity-optimizer/tree/main/complexity-optimizer) |
 
-### `cloudflare/skills` — tracks `main` (8)
+### `cloudflare/skills` tracking `main` (7)
 
-[`agents-sdk`](./skills/agents-sdk), [`cloudflare`](./skills/cloudflare), [`cloudflare-email-service`](./skills/cloudflare-email-service), [`durable-objects`](./skills/durable-objects), [`sandbox-sdk`](./skills/sandbox-sdk), [`web-perf`](./skills/web-perf), [`workers-best-practices`](./skills/workers-best-practices), [`wrangler`](./skills/wrangler) — all at `cloudflare/skills@main:skills/<name>`.
+[`agents-sdk`](./skills/agents-sdk),
+[`cloudflare`](./skills/cloudflare),
+[`cloudflare-email-service`](./skills/cloudflare-email-service),
+[`durable-objects`](./skills/durable-objects),
+[`web-perf`](./skills/web-perf),
+[`workers-best-practices`](./skills/workers-best-practices), and
+[`wrangler`](./skills/wrangler) track
+`cloudflare/skills@main:skills/<name>`.
 
-### `cloudflare/skills` — pinned snapshot at `54ca4fd` (2)
+### `cloudflare/skills` pinned snapshot (2)
 
-Removed in commit [`e96fbc7`](https://github.com/cloudflare/skills/commit/e96fbc7) (2026-04-15) when the guidance was folded into `commands/build-agent.md` / `commands/build-mcp.md`. Pinned to the parent commit so the original SKILL.md form is preserved.
+These skills were removed upstream after `54ca4fd`, so their original
+`SKILL.md` form remains pinned:
 
-- [`building-ai-agent-on-cloudflare`](./skills/building-ai-agent-on-cloudflare) — `cloudflare/skills@54ca4fd:skills/building-ai-agent-on-cloudflare`
-- [`building-mcp-server-on-cloudflare`](./skills/building-mcp-server-on-cloudflare) — `cloudflare/skills@54ca4fd:skills/building-mcp-server-on-cloudflare`
+- [`building-ai-agent-on-cloudflare`](./skills/building-ai-agent-on-cloudflare)
+- [`building-mcp-server-on-cloudflare`](./skills/building-mcp-server-on-cloudflare)
 
-### `EpicenterHQ/epicenter` — tracks `main` (4)
+Both use
+`cloudflare/skills@54ca4fd800e69906355da5010c03499017ddc3b1`.
 
-Local directory names use a `better-auth-` prefix for grouping; the upstream directory name (and the `name:` frontmatter field) sticks with EpicenterHQ's naming.
+### `EpicenterHQ/epicenter` tracking `main` (4)
 
 | Local skill | Upstream directory |
 | --- | --- |
@@ -44,15 +53,29 @@ Local directory names use a `better-auth-` prefix for grouping; the upstream dir
 | [`better-auth-create-auth`](./skills/better-auth-create-auth) | `.agents/skills/create-auth-skill` |
 | [`better-auth-email-and-password`](./skills/better-auth-email-and-password) | `.agents/skills/email-and-password-best-practices` |
 
-## mosoo originals (2)
+## Mosoo-maintained (4)
 
-No public upstream. Edit `skills/<name>/SKILL.md` directly and commit.
+Edit these directly and do not add them to the sync manifest.
 
-- [`code-review-guardrails`](./skills/code-review-guardrails) — review skill that catches sub-optimal coding patterns and constraint violations
-- [`typescript-style-guardrails`](./skills/typescript-style-guardrails) — readability-first TypeScript/TSX style guardrails for strict codebases
+Originals:
 
-## How `scripts/sync.sh` works
+- [`code-review-guardrails`](./skills/code-review-guardrails)
+- [`typescript-style-guardrails`](./skills/typescript-style-guardrails)
 
-Each manifest entry is `<local-dir>|<owner/repo>|<ref>|<upstream-path>`. For each entry, the script does `git fetch --depth 1` against the pinned ref, checks out `upstream-path`, then replaces `skills/<local-dir>/` with the fetched contents. It writes nothing outside `skills/`, so `git diff` after the run shows exactly what changed upstream.
+Adaptations:
 
-Adding a new upstream-sourced skill = adding one line to the `SOURCES` array. The weekly workflow will start syncing it on the next Monday run.
+- [`no-use-effect`](./skills/no-use-effect), adapted from
+  [`Factory-AI/factory-plugins`](https://github.com/Factory-AI/factory-plugins/tree/master/plugins/typescript/skills/no-use-effect)
+  to reflect Mosoo's real React/data-layer commands and allow direct effects for
+  external synchronization.
+- [`sandbox-sdk`](./skills/sandbox-sdk), adapted from
+  [`cloudflare/skills`](https://github.com/cloudflare/skills/tree/main/skills/sandbox-sdk)
+  to require repository evidence and current official documentation rather than
+  a fixed Wrangler format, image tag, or SDK version.
+
+## Sync behavior
+
+Each manifest entry is
+`<local-dir>|<owner/repo>|<ref>|<upstream-path>`. The script fetches that
+source and replaces only `skills/<local-dir>/`. A Mosoo-specific adaptation
+must remain outside the manifest so a refresh cannot overwrite its guardrails.

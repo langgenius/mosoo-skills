@@ -1,8 +1,13 @@
 # mosoo-skills
 
-Reusable skills for the Mosoo coding agents. Each skill lives under [`skills/`](./skills) as its own directory containing a `SKILL.md` (the entry point) and any supporting `references/`, scripts, or assets.
+Reusable skills for Mosoo coding agents. Each skill lives under
+[`skills/`](./skills) with a `SKILL.md` entry point and optional supporting
+references, scripts, or assets.
 
-Of the 20 skills, **18 are fetched from public upstreams** by [`scripts/sync.sh`](./scripts/sync.sh) and the [weekly GitHub Action](./.github/workflows/weekly-sync.yml). The remaining 2 are mosoo originals — edit in place. Full upstream manifest in [`SOURCES.md`](./SOURCES.md).
+Provenance and refresh ownership are tracked in [`SOURCES.md`](./SOURCES.md).
+Of the 20 skills, 16 are unmodified public-upstream copies refreshed by
+`scripts/sync.sh`. Four are Mosoo-maintained: two originals plus the
+`no-use-effect` and `sandbox-sdk` adaptations.
 
 ## Skills
 
@@ -14,62 +19,54 @@ Of the 20 skills, **18 are fetched from public upstreams** by [`scripts/sync.sh`
 | [better-auth-email-and-password](./skills/better-auth-email-and-password/SKILL.md) | Guidance and enforcement rules for secure email + password auth with Better Auth. |
 | [better-auth-security](./skills/better-auth-security/SKILL.md) | Cross-cutting Better Auth security: rate limiting, CSRF, session, trusted origins, secrets, OAuth, IP tracking, auditing. |
 | [building-ai-agent-on-cloudflare](./skills/building-ai-agent-on-cloudflare/SKILL.md) | Build AI agents on Cloudflare with state, real-time WebSockets, scheduled tasks, tools, and chat. |
-| [building-mcp-server-on-cloudflare](./skills/building-mcp-server-on-cloudflare/SKILL.md) | Build remote MCP (Model Context Protocol) servers on Cloudflare Workers with tools and OAuth. |
-| [cloudflare](./skills/cloudflare/SKILL.md) | Comprehensive Cloudflare platform skill: Workers, Pages, KV/D1/R2, Workers AI, Vectorize, Agents SDK, networking, security, IaC. |
-| [cloudflare-email-service](./skills/cloudflare-email-service/SKILL.md) | Send and receive transactional emails with Cloudflare Email Service (Email Sending + Email Routing). |
-| [code-review-guardrails](./skills/code-review-guardrails/SKILL.md) | Catch sub-optimal coding patterns, tech debt, and constraint violations before commit/merge. |
-| [complexity-optimizer](./skills/complexity-optimizer/SKILL.md) | Audit and improve code complexity, N+1 queries, repeated scans, and render-heavy paths without changing behavior. |
-| [durable-objects](./skills/durable-objects/SKILL.md) | Create and review Cloudflare Durable Objects (stateful coordination, RPC, SQLite, alarms, WebSockets). |
-| [no-use-effect](./skills/no-use-effect/SKILL.md) | Enforce the no-`useEffect` rule when writing or reviewing React code. |
-| [playwright-cli](./skills/playwright-cli/SKILL.md) | Automate browser interactions, test web pages, and work with Playwright tests. |
-| [sandbox-sdk](./skills/sandbox-sdk/SKILL.md) | Build sandboxed applications for secure code execution (code interpreters, CI/CD, dev environments). |
-| [typescript-expert](./skills/typescript-expert/SKILL.md) | TypeScript expert: strict type safety, boundary contracts, parser/admission design, monorepo diagnostics. |
-| [typescript-style-guardrails](./skills/typescript-style-guardrails/SKILL.md) | Readability-first TypeScript/TSX style guardrails for strict codebases. |
-| [web-perf](./skills/web-perf/SKILL.md) | Analyze web performance with Chrome DevTools MCP — Core Web Vitals, render-blocking, network chains, CLS. |
-| [workers-best-practices](./skills/workers-best-practices/SKILL.md) | Review and author Cloudflare Workers code against production best practices. |
-| [wrangler](./skills/wrangler/SKILL.md) | Cloudflare Workers CLI for deploying and managing Workers, KV, R2, D1, Vectorize, Hyperdrive, Workers AI, Containers, Queues, Workflows, Pipelines, and Secrets Store. |
+| [building-mcp-server-on-cloudflare](./skills/building-mcp-server-on-cloudflare/SKILL.md) | Build remote MCP servers on Cloudflare Workers with tools and OAuth. |
+| [cloudflare](./skills/cloudflare/SKILL.md) | Cloudflare platform guidance for Workers, Pages, storage, AI, networking, security, and IaC. |
+| [cloudflare-email-service](./skills/cloudflare-email-service/SKILL.md) | Send and receive transactional emails with Cloudflare Email Service. |
+| [code-review-guardrails](./skills/code-review-guardrails/SKILL.md) | Review Mosoo changes against current project rules and architecture. |
+| [complexity-optimizer](./skills/complexity-optimizer/SKILL.md) | Audit and improve complexity and performance without changing behavior. |
+| [durable-objects](./skills/durable-objects/SKILL.md) | Create and review Cloudflare Durable Objects. |
+| [no-use-effect](./skills/no-use-effect/SKILL.md) | Avoid unnecessary React effects while keeping real external synchronization explicit. |
+| [playwright-cli](./skills/playwright-cli/SKILL.md) | Automate browser interactions and work with Playwright tests. |
+| [sandbox-sdk](./skills/sandbox-sdk/SKILL.md) | Build and review version-sensitive Cloudflare Sandbox SDK integrations. |
+| [typescript-expert](./skills/typescript-expert/SKILL.md) | TypeScript strictness, boundary contracts, parser design, and monorepo diagnostics. |
+| [typescript-style-guardrails](./skills/typescript-style-guardrails/SKILL.md) | Readability-first TypeScript/TSX style guardrails. |
+| [web-perf](./skills/web-perf/SKILL.md) | Analyze Web performance with Chrome DevTools. |
+| [workers-best-practices](./skills/workers-best-practices/SKILL.md) | Review and author Cloudflare Workers code. |
+| [wrangler](./skills/wrangler/SKILL.md) | Use Wrangler to develop and manage Cloudflare resources. |
 
 ## Layout
 
-```
+```text
 mosoo-skills/
 ├── README.md
-├── SOURCES.md                       # upstream provenance per skill
-├── .github/workflows/weekly-sync.yml  # weekly auto-sync GitHub Action
+├── SOURCES.md
 ├── scripts/
-│   └── sync.sh                      # refresh all 18 upstream-sourced skills
+│   └── sync.sh
 └── skills/
     └── <skill-name>/
-        ├── SKILL.md                 # entry point — frontmatter `name` + `description`, then body
-        └── references/              # optional supporting material
+        ├── SKILL.md
+        └── references/
 ```
 
-## Weekly auto-sync
+## Updating skills
 
-[`./.github/workflows/weekly-sync.yml`](./.github/workflows/weekly-sync.yml) fires every Monday 09:00 UTC (17:00 北京时间). It runs `scripts/sync.sh`, and **opens a PR titled `chore(skills): weekly upstream sync` if any skill drifted**. Review the diff, merge if good. The 2 mosoo originals are skipped — they have no upstream.
-
-Manual run:
+Run these commands from the repository root:
 
 ```bash
-# locally
-scripts/sync.sh                    # all 18
-scripts/sync.sh <skill-name>       # one
-
-# trigger the workflow from GitHub UI
-gh workflow run "Weekly skill sync"
+scripts/sync.sh                 # refresh all 16 upstream copies
+scripts/sync.sh <skill-name>    # refresh one upstream copy
 ```
 
-After running, `git diff skills/` shows exactly what changed upstream — nothing else is touched.
+Review `git diff -- skills/<name>/` before adopting a refresh. The four
+Mosoo-maintained skills are intentionally absent from the sync manifest so an
+upstream refresh cannot erase project-specific guardrails.
 
-## Adding a new skill
+## Adding a skill
 
-1. Create `skills/<skill-name>/SKILL.md` with YAML frontmatter:
-   ```markdown
-   ---
-   name: <skill-name>
-   description: One-line summary that helps an agent decide whether to load this skill.
-   ---
-   ```
-2. Add an entry to the **Skills** table above — link the skill name to its `SKILL.md`.
-3. If it has a public upstream, add a line to the `SOURCES` array in [`scripts/sync.sh`](./scripts/sync.sh) (the weekly workflow will start syncing it next Monday) and record it in [`SOURCES.md`](./SOURCES.md).
-4. Keep skill names in `kebab-case`. Match the directory name to the `name` frontmatter field where practical.
+1. Create `skills/<skill-name>/SKILL.md` with only `name` and `description`
+   in YAML frontmatter.
+2. Add the skill to the table above.
+3. Record provenance and maintenance ownership in `SOURCES.md`.
+4. Add only an unmodified upstream copy to the `SOURCES` array in
+   `scripts/sync.sh`; keep adaptations out of that manifest.
+5. Use kebab-case and keep the directory name aligned with `name`.

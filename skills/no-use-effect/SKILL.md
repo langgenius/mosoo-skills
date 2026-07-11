@@ -1,233 +1,143 @@
 ---
 name: no-use-effect
-description: >-
-  Enforce the no-useEffect rule when writing or reviewing React code.
-  ACTIVATE when writing React components, refactoring existing useEffect calls,
-  reviewing PRs with useEffect, or when an agent adds useEffect "just in case."
-  Provides the five replacement patterns and the useMountEffect escape hatch.
+description: Avoid unnecessary React effects in Mosoo while using React useEffect directly for real external synchronization. Use when writing or reviewing React components, refactoring effect-driven derived state or event relays, handling subscriptions and browser APIs, or validating web changes with Mosoo's focused Justfile commands.
 ---
 
-# No useEffect
+# Avoid Unnecessary useEffect
 
-Never call `useEffect` directly. Use derived state, event handlers, data-fetching libraries, or `useMountEffect` instead.
+Prefer render-time derivation, event handlers, the existing query layer, and
+component identity over effect choreography. Use React `useEffect` directly
+when a component must synchronize with a system outside React.
 
-## Quick Reference
+## Decision Table
 
-- Lint rule: `no-restricted-syntax` (configured to ban `useEffect`)
-- React docs: [You Might Not Need an Effect](https://react.dev/learn/you-might-not-need-an-effect)
-- Origin: [https://x.com/alvinsng/status/2033969062834045089](https://x.com/alvinsng/status/2033969062834045089)
-
-| Instead of useEffect for... | Use |
+| Need | Prefer |
 | --- | --- |
-| Deriving state from other state/props | Inline computation (Rule 1) |
-| Fetching data | `useQuery` / data-fetching library (Rule 2) |
-| Responding to user actions | Event handlers (Rule 3) |
-| One-time external sync on mount | `useMountEffect` (Rule 4) |
-| Resetting state when a prop changes | `key` prop on parent (Rule 5) |
-
-## When to Use This Skill
-
-- Writing new React components
-- Refactoring existing `useEffect` calls
-- Reviewing PRs that introduce `useEffect`
-- An agent adds `useEffect` "just in case"
+| Derive a value from props or state | Compute during render |
+| Perform work caused by a user action | Run it in the event handler |
+| Read or mutate server data | Use the existing generated API/query layer |
+| Reset a subtree for a different entity | Give the subtree a different `key` |
+| Subscribe to or control an external system | Use `useEffect` with cleanup and complete dependencies |
 
 ## Workflow
 
-### 1. Identify the useEffect
+1. State what external system, if any, the component must synchronize with.
+2. If there is none, move the work to render, an event handler, the query
+   layer, or component identity.
+3. If there is one, keep the effect narrow, declare every reactive dependency,
+   and return cleanup when setup creates a resource or subscription.
+4. Verify the affected web package with the repository's focused commands.
 
-Determine what the effect is doing -- deriving state, fetching data, responding to an event, syncing with an external system, or resetting state.
+## 1. Derive During Render
 
-### 2. Apply the Correct Replacement Pattern
+Do not store a value that can be calculated from current props or state.
 
-Use the five rules below to pick the right replacement.
-
-### 3. Verify
-
-```
-npm run lint -- --filter=<package>
-npm run typecheck -- --filter=<package>
-npm run test -- --filter=<package>
-```
-
-## The Escape Hatch: useMountEffect
-
-For the rare case where you need to sync with an external system on mount:
-
-The implementation wraps `useEffect` with an empty dependency array to make intent explicit:
-
-```
-export function useMountEffect(effect: () => void | (() => void)) {
-  /* eslint-disable no-restricted-syntax */
-  useEffect(effect, []);
-}
-```
-
-## Replacement Patterns
-
-### Rule 1: Derive state, do not sync it
-
-Most effects that set state from other state are unnecessary and add extra renders.
-
-```
-// BAD: Two render cycles - first stale, then filtered
-function ProductList() {
-  const [products, setProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
-
-  useEffect(() => {
-    setFilteredProducts(products.filter((p) => p.inStock));
-  }, [products]);
-}
-
-// GOOD: Compute inline in one render
-function ProductList() {
-  const [products, setProducts] = useState([]);
-  const filteredProducts = products.filter((p) => p.inStock);
-}
-```
-
-**Smell test:** You are about to write `useEffect(() => setX(deriveFromY(y)), [y])`, or you have state that only mirrors other state or props.
-
-### Rule 2: Use data-fetching libraries
-
-Effect-based fetching creates race conditions and duplicated caching logic.
-
-```
-// BAD: Race condition risk
-function ProductPage({ productId }) {
-  const [product, setProduct] = useState(null);
-
-  useEffect(() => {
-    fetchProduct(productId).then(setProduct);
-  }, [productId]);
-}
-
-// GOOD: Query library handles cancellation/caching/staleness
-function ProductPage({ productId }) {
-  const { data: product } = useQuery(['product', productId], () =>
-    fetchProduct(productId)
-  );
-}
-```
-
-**Smell test:** Your effect does `fetch(...)` and then `setState(...)`, or you are re-implementing caching, retries, cancellation, or stale handling.
-
-### Rule 3: Event handlers, not effects
-
-If a user clicks a button, do the work in the handler.
-
-```
-// BAD: Effect as an action relay
-function LikeButton() {
-  const [liked, setLiked] = useState(false);
-
-  useEffect(() => {
-    if (liked) {
-      postLike();
-      setLiked(false);
-    }
-  }, [liked]);
-
-  return <button onClick={() => setLiked(true)}>Like</button>;
-}
-
-// GOOD: Direct event-driven action
-function LikeButton() {
-  return <button onClick={() => postLike()}>Like</button>;
-}
-```
-
-**Smell test:** State is used as a flag so an effect can do the real action, or you are building "set flag -> effect runs -> reset flag" mechanics.
-
-### Rule 4: useMountEffect for one-time external sync
-
-Good uses: DOM integration (focus, scroll), third-party widget lifecycles, browser API subscriptions.
-
-```
-// BAD: Guard inside effect
-function VideoPlayer({ isLoading }) {
-  useEffect(() => {
-    if (!isLoading) playVideo();
-  }, [isLoading]);
-}
-
-// GOOD: Mount only when preconditions are met
-function VideoPlayerWrapper({ isLoading }) {
-  if (isLoading) return <LoadingScreen />;
-  return <VideoPlayer />;
-}
-
-function VideoPlayer() {
-  useMountEffect(() => playVideo());
-}
-```
-
-Use `useMountEffect` for stable dependencies (singletons, refs, context values that never change):
-
-```
-// BAD: useEffect with dependency that never changes
+```tsx
+// Avoid: an extra render and a temporarily stale value.
+const [visibleItems, setVisibleItems] = useState<Item[]>([]);
 useEffect(() => {
-  connectionManager.on('connected', handleConnect);
-  return () => connectionManager.off('connected', handleConnect);
-}, [connectionManager]); // connectionManager is a singleton from context
+  setVisibleItems(items.filter((item) => item.visible));
+}, [items]);
 
-// GOOD: useMountEffect for stable dependencies
-
-useMountEffect(() => {
-  connectionManager.on('connected', handleConnect);
-  return () => connectionManager.off('connected', handleConnect);
-});
+// Prefer: one source of truth.
+const visibleItems = items.filter((item) => item.visible);
 ```
 
-**Smell test:** You are synchronizing with an external system, and the behavior is naturally "setup on mount, cleanup on unmount."
+Use `useMemo` only when the calculation is measurably expensive or stable
+identity is required by a consumer. It is not a replacement for every effect.
 
-### Rule 5: Reset with key, not dependency choreography
+## 2. Keep User Actions In Event Handlers
 
-```
-// BAD: Effect attempts to emulate remount behavior
-function VideoPlayer({ videoId }) {
-  useEffect(() => {
-    loadVideo(videoId);
-  }, [videoId]);
-}
+Do not turn state into a command queue for an effect.
 
-// GOOD: key forces clean remount
-function VideoPlayer({ videoId }) {
-  useMountEffect(() => {
-    loadVideo(videoId);
-  });
-}
+```tsx
+// Avoid: click -> flag -> effect -> reset flag.
+const [shouldSave, setShouldSave] = useState(false);
+useEffect(() => {
+  if (!shouldSave) return;
+  void saveDraft();
+  setShouldSave(false);
+}, [shouldSave]);
 
-function VideoPlayerWrapper({ videoId }) {
-  return <VideoPlayer key={videoId} videoId={videoId} />;
+// Prefer: the event owns the action.
+function handleSave() {
+  void saveDraft();
 }
 ```
 
-**Smell test:** You are writing an effect whose only job is to reset local state when an ID/prop changes, or you want the component to behave like a brand-new instance for each entity.
+If multiple callers need the action, extract a normal function or mutation
+hook. Do not route it through render state.
 
-## Component Structure Convention
+## 3. Use The Existing Data Layer
 
-Computed values come after hooks and local state, never via `useEffect`:
+Avoid ad hoc fetch effects that recreate cancellation, caching, retry, loading,
+and stale-data behavior. Use Mosoo's generated GraphQL access and existing
+TanStack Query patterns when they fit the boundary.
 
+Keep request parameters in the query key or mutation input. Handle
+user-triggered mutations from the event that caused them.
+
+## 4. Synchronize External Systems Directly
+
+Effects are appropriate for browser APIs, timers, sockets, subscriptions,
+third-party widgets, DOM integration, and other resources whose lifecycle must
+follow the mounted component.
+
+```tsx
+useEffect(() => {
+  const unsubscribe = sessionStream.subscribe(sessionId, handleEvent);
+  return unsubscribe;
+}, [sessionId, handleEvent, sessionStream]);
 ```
-export function FeatureComponent({ featureId }: ComponentProps) {
-  // Hooks first
-  const { data, isLoading } = useQueryFeature(featureId);
 
-  // Local state
-  const [isOpen, setIsOpen] = useState(false);
+Requirements for a necessary effect:
 
-  // Computed values (NOT useEffect + setState)
-  const displayName = user?.name ?? 'Unknown';
+- setup and cleanup are safe under React Strict Mode's development replay;
+- every reactive value used by the effect is represented in its dependency
+  list;
+- callbacks or objects are stabilized only when their identity is part of the
+  external subscription contract;
+- cleanup releases listeners, timers, observers, sockets, or pending work;
+- the effect does not also mirror derived state or relay a user action.
 
-  // Event handlers
-  const handleClick = () => { setIsOpen(true); };
+Do not hide dependencies behind a mount-only wrapper. If synchronization is
+truly mount-scoped, the direct effect and its cleanup should make that contract
+visible.
 
-  // Early returns
-  if (isLoading) return <Loading />;
+## 5. Reset With Component Identity
 
-  // Render
-  return <Flex direction="column" gap="lg">...</Flex>;
+When a component should behave as a new instance for a different entity, put
+the identity in a parent `key` instead of resetting several state values in an
+effect.
+
+```tsx
+function AgentEditorRoute({ agentId }: { agentId: string }) {
+  return <AgentEditor key={agentId} agentId={agentId} />;
 }
 ```
+
+Use this only when a full local subtree reset is the intended user experience.
+Preserve state explicitly when users expect drafts or selections to survive an
+identity change.
+
+## Review Questions
+
+- What external system requires synchronization?
+- Could the value be computed during render?
+- Did a user event already provide the correct execution boundary?
+- Does the existing query or mutation layer own this request?
+- Would a `key` express the intended reset more directly?
+- For a necessary effect, are dependencies, cleanup, and replay safety clear?
+
+## Verification
+
+Run from the Mosoo repository root:
+
+```bash
+just tc-package @mosoo/web
+just test-package @mosoo/web
+```
+
+Use `just test-file <path>` when one focused test proves the behavior. Add a
+browser or manual flow when the effect changes a user-visible lifecycle such as
+reconnection, notifications, autosave, or navigation.
