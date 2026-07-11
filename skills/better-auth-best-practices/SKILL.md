@@ -12,9 +12,10 @@ inspect pinned packages, the lockfile, schema ownership, and `just --list`.
 Those sources override this skill. In Mosoo, do not install or fetch `@latest`
 packages and do not run Better Auth CLI migration/generation or Drizzle push
 commands. Change the canonical schema, then use `just db-generate <name>`,
-review the SQL, run relevant API tests, and use
-`just db-migrations-check`/`just db-reset-local` as documented. Generic CLI
-commands below are greenfield fallbacks only.
+review every generated file plus `git diff -- pkgs/db/drizzle`, and run
+relevant API tests. Use `just db-reset-local` to prove the full chain from
+fresh local state and `just db-migrate` to apply pending migrations to existing
+local state. Generic CLI commands below are greenfield fallbacks only.
 
 **Always consult [better-auth.com/docs](https://better-auth.com/docs) for code examples and latest API.**
 

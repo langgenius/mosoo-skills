@@ -47,8 +47,8 @@ Look for parallel truth sources or manual edits to generated output.
 
 For GraphQL, fix the source and regenerate. For D1 schema changes, update the
 schema and append one named migration with `just db-generate <name>`, then
-review its SQL. Never modify, delete, rename, or regenerate an existing
-migration or snapshot to hide drift.
+review every generated file plus `git diff -- pkgs/db/drizzle`. Never modify,
+delete, rename, or regenerate an existing migration or snapshot to hide drift.
 
 ### D1 migration safety
 
@@ -171,10 +171,10 @@ New I/O and failure paths need evidence that operators can understand them.
   - TypeScript: `just tc-package <package>`
   - tests: `just test-package <package>` or `just test-file <path>`
   - GraphQL changes: `just graphql-codegen`
-  - D1 schema changes: `just db-generate <name>`, review the SQL, run relevant
-    API tests and `just db-migrations-check`; use `just db-reset-local` to prove
-    the full chain against fresh local state and `just db-migrate` only to apply
-    pending local migrations
+  - D1 schema changes: `just db-generate <name>`, review every generated file
+    plus `git diff -- pkgs/db/drizzle`, and run relevant API tests; use
+    `just db-reset-local` to prove the full chain against fresh local state and
+    `just db-migrate` to apply pending migrations to existing local state
   - broad or cross-boundary changes: `just check`
 
 Do not claim performance, availability, or runtime health without measurements,
