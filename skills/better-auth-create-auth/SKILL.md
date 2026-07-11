@@ -47,9 +47,10 @@ Use this pattern when you need to:
 
 ---
 
-## Phase 1: Planning (REQUIRED before implementation)
+## Planning for ambiguous or greenfield requests
 
-Before writing any code, gather requirements by scanning the project and asking the user structured questions. This ensures the implementation matches their needs.
+Scan the project before implementation. Ask structured questions only for
+material product choices that remain unresolved after that scan.
 
 ### Step 1: Scan the project
 
@@ -82,30 +83,30 @@ the questions under a title such as "Auth Setup Planning".
    - Prompt: "Which database setup will you use?"
    - Options: PostgreSQL (Prisma) | PostgreSQL (Drizzle) | PostgreSQL (pg driver) | MySQL (Prisma) | MySQL (Drizzle) | MySQL (mysql2 driver) | SQLite (Prisma) | SQLite (Drizzle) | SQLite (better-sqlite3 driver) | MongoDB (Mongoose) | MongoDB (native driver)
 
-4. **Authentication methods** (always ask, allow multiple)
+4. **Authentication methods** (ask only if unresolved; allow multiple)
    - Prompt: "Which sign-in methods do you need?"
    - Options: Email & password | Social OAuth (Google, GitHub, etc.) | Magic link (passwordless email) | Passkey (WebAuthn) | Phone number
    - `allow_multiple: true`
 
-5. **Social providers** (only if they selected Social OAuth above — ask in a follow-up call)
+5. **Social providers** (ask only if Social OAuth was selected and providers remain unresolved)
    - Prompt: "Which social providers do you need?"
    - Options: Google | GitHub | Apple | Microsoft | Discord | Twitter/X
    - `allow_multiple: true`
 
-6. **Email verification** (only if Email & password was selected above — ask in a follow-up call)
+6. **Email verification** (ask only if email/password was selected and the policy remains unresolved)
    - Prompt: "Do you want to require email verification?"
    - Options: Yes | No
 
-7. **Email provider** (only if email verification is Yes, or if Password reset is selected in features — ask in a follow-up call)
+7. **Email provider** (ask only when email delivery is needed and the provider remains unresolved)
    - Prompt: "How do you want to send emails?"
    - Options: Resend | Mock it for now (console.log)
 
-8. **Features & plugins** (always ask, allow multiple)
+8. **Features & plugins** (ask only if unresolved; allow multiple)
    - Prompt: "Which additional features do you need?"
    - Options: Two-factor authentication (2FA) | Organizations / teams | Admin dashboard | API bearer tokens | Password reset | None of these
    - `allow_multiple: true`
 
-9. **Auth pages** (always ask, allow multiple — pre-select based on earlier answers)
+9. **Auth pages** (ask only if unresolved; allow multiple and pre-select from existing requirements)
    - Prompt: "Which auth pages do you need?"
    - Options vary based on previous answers:
      - Always available: Sign in | Sign up
@@ -113,7 +114,7 @@ the questions under a title such as "Auth Setup Planning".
      - If email verification enabled: Email verification
    - `allow_multiple: true`
 
-10. **Auth UI style** (always ask)
+10. **Auth UI style** (ask only if the repository does not establish it)
    - Prompt: "What style do you want for the auth pages? Pick one or describe your own."
    - Options: Minimal & clean | Centered card with background | Split layout (form + hero image) | Floating / glassmorphism | Other (I'll describe)
 
@@ -143,13 +144,15 @@ After collecting answers, present a concise implementation plan as a markdown ch
 10. Create sign-in / sign-up pages
 ```
 
-Ask the user to confirm the plan before proceeding to Phase 2.
+If the plan still contains a material product choice, ask the user to confirm
+that choice. Otherwise, proceed without redundant confirmation.
 
 ---
 
 ## Phase 2: Implementation
 
-Only proceed here after the user confirms the plan from Phase 1.
+Proceed when material choices are resolved; do not require a confirmation that
+the repository or user request has already supplied.
 
 Follow the decision tree below, guided by the answers collected above.
 
