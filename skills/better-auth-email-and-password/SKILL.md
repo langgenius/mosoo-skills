@@ -3,6 +3,18 @@ name: email-and-password-best-practices
 description: This skill provides guidance and enforcement rules for implementing secure email and password authentication using Better Auth.
 ---
 
+# Better Auth Email and Password
+
+## Project-first guardrail
+
+For an existing repository, read its active `AGENTS.md` and `CONTRIBUTING.md`,
+inspect pinned Better Auth packages, schema ownership, the lockfile, and
+`just --list`. Those sources override this skill. In Mosoo, preserve pinned
+dependencies and existing auth contracts, and use documented `just` recipes
+for typechecking, tests, schema generation, and migrations. Do not install or
+upgrade packages, run generic auth or database generators, or bypass the
+append-only D1 migration workflow merely because an example suggests it.
+
 ## Email Verification Setup
 
 When enabling email/password authentication, configure `emailVerification.sendVerificationEmail` to verify user email addresses. This helps prevent fake sign-ups and ensures users have access to the email they registered with.

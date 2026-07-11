@@ -1,9 +1,9 @@
 # Skill sources
 
-All 20 skills, grouped by maintenance path. The 2 entries in
+All 20 skills, grouped by maintenance path. The 1 entry in
 `skills-lock.json` are tracked by the
 [`skills`](https://github.com/vercel-labs/skills) CLI. 1 unmodified skill syncs
-from a public upstream the CLI cannot enumerate. The remaining 17 are
+from a public upstream the CLI cannot enumerate. The remaining 18 are
 Mosoo-maintained originals or adaptations.
 
 Run every relative command on this page from the `mosoo-skills` repository
@@ -11,17 +11,16 @@ root. From another directory, invoke `scripts/sync-local.sh` by its absolute
 path and review with
 `git -C /absolute/path/to/mosoo-skills diff -- skills/<name>/`.
 
-## CLI-tracked (2)
+## CLI-tracked (1)
 
 | Local skill | Upstream | Refresh |
 | --- | --- | --- |
-| [`web-perf`](./skills/web-perf) | [`cloudflare/skills@skills/web-perf`](https://github.com/cloudflare/skills/tree/main/skills/web-perf) | `npx skills update web-perf` |
 | [`complexity-optimizer`](./skills/complexity-optimizer) | [`Kappaemme-git/codex-complexity-optimizer@complexity-optimizer`](https://github.com/Kappaemme-git/codex-complexity-optimizer/tree/main/complexity-optimizer) | `npx skills update complexity-optimizer` |
 
 Bulk update:
 
 ```bash
-npx skills update   # updates only the 2 lock-tracked skills
+npx skills update   # updates only the 1 lock-tracked skill
 ```
 
 ## Manually synced (1)
@@ -33,7 +32,7 @@ enumeration. It remains an unmodified upstream copy.
 | --- | --- | --- |
 | [`better-auth-security`](./skills/better-auth-security) | `EpicenterHQ/epicenter@.agents/skills/better-auth-security-best-practices/SKILL.md` | `scripts/sync-local.sh better-auth-security` |
 
-## Mosoo-maintained (17)
+## Mosoo-maintained (18)
 
 This repository is the canonical home for these skills. Edit them directly and
 commit the result. Do not add adaptations to `skills-lock.json` or
@@ -59,6 +58,7 @@ Mosoo-maintained adaptations with upstream provenance:
 - [`playwright-cli`](./skills/playwright-cli) — adapted from [`microsoft/playwright-cli`](https://github.com/microsoft/playwright-cli/tree/main/skills/playwright-cli) with project-first test and installation guardrails
 - [`sandbox-sdk`](./skills/sandbox-sdk) — adapted from [`cloudflare/skills`](https://github.com/cloudflare/skills/tree/main/skills/sandbox-sdk)
 - [`typescript-expert`](./skills/typescript-expert) — adapted from [`davila7/claude-code-templates`](https://github.com/davila7/claude-code-templates/tree/main/cli-tool/components/skills/development/typescript-expert)
+- [`web-perf`](./skills/web-perf) — adapted from [`cloudflare/skills`](https://github.com/cloudflare/skills/tree/main/skills/web-perf) with project-first tooling and installation guardrails
 - [`workers-best-practices`](./skills/workers-best-practices) — adapted from [`cloudflare/skills`](https://github.com/cloudflare/skills/tree/main/skills/workers-best-practices)
 - [`wrangler`](./skills/wrangler) — adapted from [`cloudflare/skills`](https://github.com/cloudflare/skills/tree/main/skills/wrangler)
 

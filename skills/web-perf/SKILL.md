@@ -5,6 +5,17 @@ description: Analyzes web performance using Chrome DevTools MCP. Measures Core W
 
 # Web Performance Audit
 
+## Project-first guardrail
+
+For an existing repository, read its active `AGENTS.md` and `CONTRIBUTING.md`,
+inspect its configured browser and DevTools capabilities, and run `just --list`
+when available. Use those capabilities and the repository's documented
+commands first. In Mosoo, do not edit MCP configuration, fetch an `@latest`
+tool, or install or upgrade project or user-level packages automatically. If a
+missing capability is essential, explain the gap and request explicit user
+authorization before proposing an installation path based on current official
+documentation and a reviewed version.
+
 Your knowledge of web performance metrics, thresholds, and tooling APIs may be outdated. **Prefer retrieval over pre-training** when citing specific numbers or recommendations.
 
 ## Retrieval Sources
@@ -15,18 +26,15 @@ Your knowledge of web performance metrics, thresholds, and tooling APIs may be o
 | Chrome DevTools docs | `https://developer.chrome.com/docs/devtools/performance` | Tooling APIs, trace analysis |
 | Lighthouse scoring | `https://developer.chrome.com/docs/lighthouse/performance/performance-scoring` | Score weights, metric thresholds |
 
-## FIRST: Verify MCP Tools Available
+## FIRST: Verify available performance tools
 
-**Run this before starting.** Try calling `navigate_page` or `performance_start_trace`. If unavailable, STOP—the chrome-devtools MCP server isn't configured.
-
-Ask the user to add this to their MCP config:
-
-```json
-"chrome-devtools": {
-  "type": "local",
-  "command": ["npx", "-y", "chrome-devtools-mcp@latest"]
-}
-```
+Try the browser or DevTools capabilities already configured for the session,
+such as navigation, network inspection, and performance traces. If a trace API
+is unavailable, do not stop or change configuration automatically. Continue
+with available browser, repository, log, or source evidence when it can answer
+the question, and clearly label metrics that remain unmeasured. If the missing
+trace is required for the requested conclusion, ask the user before changing
+tooling.
 
 ## Key Guidelines
 

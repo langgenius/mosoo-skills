@@ -2,7 +2,7 @@
 
 Reusable skills for the Mosoo coding agents. Each skill lives under [`skills/`](./skills) as its own directory containing a `SKILL.md` (the entry point) and any supporting `references/`, scripts, or assets.
 
-Skill provenance and refresh commands are tracked in [`SOURCES.md`](./SOURCES.md). 2 of the 20 skills are managed by the [`skills`](https://github.com/vercel-labs/skills) CLI; 1 unmodified skill is refreshed from a public upstream by `scripts/sync-local.sh`; the remaining 17 are Mosoo-maintained originals or adaptations — edit them in place.
+Skill provenance and refresh commands are tracked in [`SOURCES.md`](./SOURCES.md). 1 of the 20 skills is managed by the [`skills`](https://github.com/vercel-labs/skills) CLI; 1 unmodified skill is refreshed from a public upstream by `scripts/sync-local.sh`; the remaining 18 are Mosoo-maintained originals or adaptations — edit them in place.
 
 ## Skills
 
@@ -51,7 +51,7 @@ mosoo-skills/
 Run the relative commands below from the `mosoo-skills` repository root. If invoking the sync script from another directory, call it by its absolute path and use `git -C /absolute/path/to/mosoo-skills diff -- skills/<name>/` to review the result.
 
 ```bash
-# 2 CLI-tracked skills
+# 1 CLI-tracked skill
 npx skills update         # apply pending updates, rewrites skills/<name>/ + skills-lock.json
 
 # 1 manually-synced skill with a public upstream (see SOURCES.md for its ref)
@@ -59,7 +59,7 @@ scripts/sync-local.sh                   # refresh all
 scripts/sync-local.sh <skill-name>      # refresh one
 ```
 
-The 17 Mosoo-maintained skills are listed in `SOURCES.md`. They are intentionally absent from `skills-lock.json` and the local-sync manifest so automated refreshes cannot overwrite Mosoo-specific project-first guidance. Review `git diff -- skills/<name>/` before committing any refresh or local edit.
+The 18 Mosoo-maintained skills are listed in `SOURCES.md`. They are intentionally absent from `skills-lock.json` and the local-sync manifest so automated refreshes cannot overwrite Mosoo-specific project-first guidance. Review `git diff -- skills/<name>/` before committing any refresh or local edit.
 
 Validate packaged Markdown links after a refresh or documentation edit:
 

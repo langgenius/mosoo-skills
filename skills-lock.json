@@ -6,12 +6,6 @@
       "sourceType": "github",
       "skillPath": "complexity-optimizer/SKILL.md",
       "computedHash": "19d3b32f82db8acd4ce3ed631cc53b32772d0d8119ffc24a711b8662689ea509"
-    },
-    "web-perf": {
-      "source": "cloudflare/skills",
-      "sourceType": "github",
-      "skillPath": "skills/web-perf/SKILL.md",
-      "computedHash": "7ae53856c320574f7440f50aef7892f96837eec9fd49d329d049d432fb4b299a"
     }
   }
 }
