@@ -2,7 +2,7 @@
 
 Reusable skills for the Mosoo coding agents. Each skill lives under [`skills/`](./skills) as its own directory containing a `SKILL.md` (the entry point) and any supporting `references/`, scripts, or assets.
 
-Skill provenance and refresh commands are tracked in [`SOURCES.md`](./SOURCES.md). 9 of the 20 skills are managed by the [`skills`](https://github.com/vercel-labs/skills) CLI; 6 are refreshed from public upstreams by `scripts/sync-local.sh`; the remaining 5 are Mosoo-maintained originals or adaptations — edit them in place.
+Skill provenance and refresh commands are tracked in [`SOURCES.md`](./SOURCES.md). 2 of the 20 skills are managed by the [`skills`](https://github.com/vercel-labs/skills) CLI; 1 unmodified skill is refreshed from a public upstream by `scripts/sync-local.sh`; the remaining 17 are Mosoo-maintained originals or adaptations — edit them in place.
 
 ## Skills
 
@@ -38,7 +38,8 @@ mosoo-skills/
 ├── package.json          # consumed by the skills CLI
 ├── skills-lock.json      # CLI-tracked skill versions + content hashes
 ├── scripts/
-│   └── sync-local.sh     # refresh the 6 non-CLI-managed skills with public upstreams
+│   ├── sync-local.sh     # refresh the unmodified non-CLI skill from its public upstream
+│   └── validate-relative-links.py # reject broken packaged Markdown links
 └── skills/
     └── <skill-name>/
         ├── SKILL.md          # entry point — frontmatter `name` + `description`, then body
@@ -50,15 +51,21 @@ mosoo-skills/
 Run the relative commands below from the `mosoo-skills` repository root. If invoking the sync script from another directory, call it by its absolute path and use `git -C /absolute/path/to/mosoo-skills diff -- skills/<name>/` to review the result.
 
 ```bash
-# 9 CLI-tracked skills
+# 2 CLI-tracked skills
 npx skills update         # apply pending updates, rewrites skills/<name>/ + skills-lock.json
 
-# 6 manually-synced skills with public upstreams (see SOURCES.md for refs)
+# 1 manually-synced skill with a public upstream (see SOURCES.md for its ref)
 scripts/sync-local.sh                   # refresh all
 scripts/sync-local.sh <skill-name>      # refresh one
 ```
 
-The 5 Mosoo-maintained skills are the `code-review-guardrails` and `typescript-style-guardrails` originals plus the `cloudflare`, `no-use-effect`, and `sandbox-sdk` adaptations. They are intentionally absent from `skills-lock.json` so `npx skills update` cannot overwrite Mosoo-specific guidance. Review `git diff -- skills/<name>/` before committing any refresh or local edit.
+The 17 Mosoo-maintained skills are listed in `SOURCES.md`. They are intentionally absent from `skills-lock.json` and the local-sync manifest so automated refreshes cannot overwrite Mosoo-specific project-first guidance. Review `git diff -- skills/<name>/` before committing any refresh or local edit.
+
+Validate packaged Markdown links after a refresh or documentation edit:
+
+```bash
+python3 scripts/validate-relative-links.py
+```
 
 ## Adding a new skill
 
@@ -70,5 +77,5 @@ The 5 Mosoo-maintained skills are the `code-review-guardrails` and `typescript-s
    ---
    ```
 2. Add an entry to the **Skills** table above — link the skill name to its `SKILL.md`.
-3. Record the upstream in [`SOURCES.md`](./SOURCES.md). If it ships in a repo the [`skills` CLI](https://github.com/vercel-labs/skills) can read, also run `npx skills add <owner/repo> --skill <skill-name> --copy -y` from the repo root so it lands in `skills-lock.json`.
+3. Record the upstream in [`SOURCES.md`](./SOURCES.md). Only an unmodified upstream copy belongs in an automated refresh path. If the [`skills` CLI](https://github.com/vercel-labs/skills) can read that unmodified copy, run `npx skills add <owner/repo> --skill <skill-name> --copy -y` from the repo root so it lands in `skills-lock.json`. A Mosoo-specific adaptation must instead be listed as Mosoo-maintained and remain absent from both automated refresh manifests.
 4. Keep skill names in `kebab-case` and match the directory name to the `name` frontmatter field where practical.

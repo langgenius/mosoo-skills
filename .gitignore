@@ -2,6 +2,8 @@
 node_modules/
 .env
 .env.local
+__pycache__/
+*.py[cod]
 
 # Skills CLI mirror directories — agent-runtime copies of skills/, not source of truth
 .agents/

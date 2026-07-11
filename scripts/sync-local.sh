@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# scripts/sync-local.sh — refresh the 6 skills that the public `skills` CLI cannot manage.
+# scripts/sync-local.sh — refresh the unmodified skill that the public `skills` CLI cannot manage.
 #
 # Usage from the mosoo-skills repository root:
-#   scripts/sync-local.sh                 # refresh all locally-maintained skills
+#   scripts/sync-local.sh                 # refresh the unmodified upstream skill
 #   scripts/sync-local.sh <skill-name>    # refresh one skill
 #
 # From any other CWD, invoke this script by its absolute path. Review with:
@@ -12,12 +12,7 @@ set -euo pipefail
 
 # Each entry: <local-skill-dir>|<upstream-repo>|<upstream-ref>|<upstream-path>
 SOURCES=(
-  "better-auth-best-practices|EpicenterHQ/epicenter|main|.agents/skills/better-auth-best-practices"
   "better-auth-security|EpicenterHQ/epicenter|main|.agents/skills/better-auth-security-best-practices"
-  "better-auth-create-auth|EpicenterHQ/epicenter|main|.agents/skills/create-auth-skill"
-  "better-auth-email-and-password|EpicenterHQ/epicenter|main|.agents/skills/email-and-password-best-practices"
-  "building-ai-agent-on-cloudflare|cloudflare/skills|54ca4fd800e69906355da5010c03499017ddc3b1|skills/building-ai-agent-on-cloudflare"
-  "building-mcp-server-on-cloudflare|cloudflare/skills|54ca4fd800e69906355da5010c03499017ddc3b1|skills/building-mcp-server-on-cloudflare"
 )
 
 repo_root="$(cd "$(dirname "$0")/.." && pwd)"
