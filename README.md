@@ -2,7 +2,7 @@
 
 Reusable skills for the Mosoo coding agents. Each skill lives under [`skills/`](./skills) as its own directory containing a `SKILL.md` (the entry point) and any supporting `references/`, scripts, or assets.
 
-Skill provenance and refresh commands are tracked in [`SOURCES.md`](./SOURCES.md). 12 of the 20 skills are managed by the [`skills`](https://github.com/vercel-labs/skills) CLI (run `npx skills check` / `npx skills update`); 6 are refreshed from public upstreams by `scripts/sync-local.sh`; the remaining 2 are mosoo originals — edit in place.
+Of the 20 skills, **18 are fetched from public upstreams** by [`scripts/sync.sh`](./scripts/sync.sh) and the [weekly GitHub Action](./.github/workflows/weekly-sync.yml). The remaining 2 are mosoo originals — edit in place. Full upstream manifest in [`SOURCES.md`](./SOURCES.md).
 
 ## Skills
 
@@ -34,30 +34,32 @@ Skill provenance and refresh commands are tracked in [`SOURCES.md`](./SOURCES.md
 ```
 mosoo-skills/
 ├── README.md
-├── SOURCES.md            # upstream provenance per skill
-├── package.json          # consumed by the skills CLI
-├── skills-lock.json      # CLI-tracked skill versions + content hashes
+├── SOURCES.md                       # upstream provenance per skill
+├── .github/workflows/weekly-sync.yml  # weekly auto-sync GitHub Action
 ├── scripts/
-│   └── sync-local.sh     # refresh the 6 non-CLI-managed skills with public upstreams
+│   └── sync.sh                      # refresh all 18 upstream-sourced skills
 └── skills/
     └── <skill-name>/
-        ├── SKILL.md          # entry point — frontmatter `name` + `description`, then body
-        └── references/       # optional supporting material
+        ├── SKILL.md                 # entry point — frontmatter `name` + `description`, then body
+        └── references/              # optional supporting material
 ```
 
-## Updating skills
+## Weekly auto-sync
+
+[`./.github/workflows/weekly-sync.yml`](./.github/workflows/weekly-sync.yml) fires every Monday 09:00 UTC (17:00 北京时间). It runs `scripts/sync.sh`, and **opens a PR titled `chore(skills): weekly upstream sync` if any skill drifted**. Review the diff, merge if good. The 2 mosoo originals are skipped — they have no upstream.
+
+Manual run:
 
 ```bash
-# 12 CLI-tracked skills
-npx skills check          # show drift from upstream
-npx skills update         # apply pending updates, rewrites skills/<name>/ + skills-lock.json
+# locally
+scripts/sync.sh                    # all 18
+scripts/sync.sh <skill-name>       # one
 
-# 6 manually-synced skills with public upstreams (see SOURCES.md for refs)
-scripts/sync-local.sh                   # refresh all
-scripts/sync-local.sh <skill-name>      # refresh one
+# trigger the workflow from GitHub UI
+gh workflow run "Weekly skill sync"
 ```
 
-The 2 mosoo originals (`code-review-guardrails`, `typescript-style-guardrails`) have no remote upstream — edit their `SKILL.md` in place. Review the resulting `git diff` before committing — upstream changes from the CLI or sync script are not auto-accepted.
+After running, `git diff skills/` shows exactly what changed upstream — nothing else is touched.
 
 ## Adding a new skill
 
@@ -69,5 +71,5 @@ The 2 mosoo originals (`code-review-guardrails`, `typescript-style-guardrails`) 
    ---
    ```
 2. Add an entry to the **Skills** table above — link the skill name to its `SKILL.md`.
-3. Record the upstream in [`SOURCES.md`](./SOURCES.md). If it ships in a repo the [`skills` CLI](https://github.com/vercel-labs/skills) can read, also run `npx skills add <owner/repo> --skill <skill-name> --copy -y` from the repo root so it lands in `skills-lock.json`.
-4. Keep skill names in `kebab-case` and match the directory name to the `name` frontmatter field where practical.
+3. If it has a public upstream, add a line to the `SOURCES` array in [`scripts/sync.sh`](./scripts/sync.sh) (the weekly workflow will start syncing it next Monday) and record it in [`SOURCES.md`](./SOURCES.md).
+4. Keep skill names in `kebab-case`. Match the directory name to the `name` frontmatter field where practical.

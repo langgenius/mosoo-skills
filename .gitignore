@@ -3,6 +3,7 @@ node_modules/
 .env
 .env.local
 
-# Skills CLI mirror directories — agent-runtime copies of skills/, not source of truth
+# Agent-runtime mirror directories — leftover from npx skills CLI experiments.
+# sync.sh writes only to skills/; these can be removed and stay ignored.
 .agents/
 .claude/
